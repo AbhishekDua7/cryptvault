@@ -1,0 +1,35 @@
+body{
+    background-color: #fff;
+    color: #000;
+    font-family: 'Roboto','Times New Roman', Times, serif;
+}
+.login-container{
+    width: 100%;
+    height: auto;
+    margin-top: 50px;
+}
+a{
+    text-decoration: none;
+}
+.login-container button{
+    width: 35%;
+    margin: 0 auto;
+    display: block;
+    background-color: #fff;
+    color: #0066a1;
+    border: 2px solid #0066a1;
+    padding: 15px;
+    font-family: 'Roboto','Times New Roman', Times, serif;
+    font-size: 20px;
+}
+.login-container button:hover{
+    cursor: pointer;
+    background-color: #0066a1;
+    color: #fff;
+}
+.fab{
+    padding: 0 3px;
+}
+h2{
+    text-align: center;
+}

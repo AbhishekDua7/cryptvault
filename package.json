@@ -1,0 +1,26 @@
+{
+  "name": "application-security-project",
+  "version": "1.0.0",
+  "description": "CS 6348.001 - Semester Project",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ali-Sbeiti/Application-Security-Project.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Ali-Sbeiti/Application-Security-Project/issues"
+  },
+  "homepage": "https://github.com/Ali-Sbeiti/Application-Security-Project#readme",
+  "devDependencies": {
+    "electron": "^24.1.2"
+  },
+  "dependencies": {
+    "express": "^4.16.4",
+    "googleapis": "^118.0.0"
+  }
+}

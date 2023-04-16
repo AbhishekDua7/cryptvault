@@ -1,0 +1,28 @@
+.header{
+    text-align: center;
+    padding: 16px;
+    color: #fff;
+    background-color: #4285f4;
+}
+button .fa-trash{
+    color: rgb(231, 33, 33);
+}
+button{
+    display: inline;
+    background-color: transparent;
+    border: none;
+}
+button:hover{
+    background-color: #000;
+    border-radius: 5px;
+}
+button:hover > i {
+    color: #fff;
+    background-color: #000;
+}
+.danger-button:hover{
+    background-color: rgb(231, 33, 33) !important;
+}
+.danger-button:hover > i{
+    color: #fff !important;
+} 
