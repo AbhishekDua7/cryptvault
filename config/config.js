@@ -6,6 +6,8 @@ var folder;
 var event;
 var justUploaded = [];
 var justDownloaded = [];
+var userPassword = 'vishakha';
+const rounds = 16;
 
 // TUDO: Do we want to make this a stateful configuration? I was thinking maybe
 // we can store accounts here?
@@ -225,7 +227,7 @@ class Config {
               .then(function(filewithdata) {
                 console.log('ENCRYPTED FILE CONTENTS:')
                 console.dir(filewithdata.data)
-                self.getSecretKey(function(key) {
+                self.getSecretKey('.datasaltkey',function(key) {
                   let decipher = crypto.createDecipheriv('aes-256-gcm', key, iv)
                   let cleartext =
                       decipher.update(filewithdata.data, 'binary', 'binary')
@@ -309,7 +311,7 @@ class Config {
     callback()
   }
 
-  getSecretKey(callback) {  // gets the symmetric key used to store unshared
+  getSecretKeyOld(callback) {  // gets the symmetric key used to store unshared
                             // docs
     fs.stat('.secretkey', function(err, stats) {
       if (err) {
@@ -331,6 +333,78 @@ class Config {
     })
   }
 
+  getSecretKey(secretFileName,callback) {  // gets the symmetric key used to store unshared                        // docs
+    const self = this;
+    fs.stat(secretFileName, function(err, stats) {
+      if (err) {
+        if (err.code == 'ENOENT') {  // if key doesnt exist, make it
+          let salt = crypto.randomBytes(32);
+          let key = self.generateKeyUsingSalt(salt, userPassword);
+          fs.writeFile(secretFileName, salt, function(err) {
+            if (err) throw err
+          })
+          return callback(key)
+        } else
+          throw err  // throw other errors
+      }
+      fs.readFile(
+          secretFileName,
+          function(err, rawfilecontents) {  // if file exists read key
+            if (err) throw err
+              return callback(self.generateKeyUsingSalt(rawfilecontents, userPassword))
+          })
+    })
+  }
+
+  getSecretKeyForData(keyEncryption, secretFileName, callback) {  // gets the symmetric key used to store unshared                        // docs
+    const self = this;
+    fs.stat(secretFileName, function(err, stats) {
+      if (err) {
+        if (err.code == 'ENOENT') {  // if key doesnt exist, make it
+          let salt = crypto.randomBytes(32);
+          let key = self.generateKeyUsingSalt(salt, userPassword);
+          fs.writeFile(secretFileName, salt, function(err) {
+            if (err) throw err
+          })
+          return callback(key)
+        } else
+          throw err  // throw other errors
+      }
+      fs.readFile(
+          secretFileName,
+          function(err, rawfilecontents) {  // if file exists read key
+            if (err) throw err
+              return callback(self.generateKeyUsingSalt(rawfilecontents, userPassword))
+          })
+    })
+  }
+
+  getEncryptedSalt(keySalt, pwd) {
+    let key2 = generateKeyUsingSalt(keySalt, pwd);
+    let iv = crypto.randomBytes(16)
+    let cipher = crypto.createCipheriv('aes-256-gcm', key, iv)
+    let ciphertext = cipher.update(rawfilecontents, 'binary', 'binary')
+
+  }
+
+  generateKeyUsingSalt(salt, pwd) {
+    console.log("Entering Key geenration\ncreds=" + pwd + "\n salt = " + salt);
+    const keyLength = 32; // 256-bit key for AES-256
+    const hash = crypto.createHash('sha256');
+    let xi = Buffer.alloc(keyLength, 0); // initialize x0 to a zero-filled buffer
+    for (let i = 0; i < this.rounds; i++) {
+      xi = hash
+            .update(xi)
+            .update(pwd)
+            .update(salt)
+            .digest();
+      // xi = hash.update(Buffer.concat([xi, credentials, salt])).digest();
+    }
+    const K1 = xi; // the final value of xi is the first AES password
+    //const K2 = crypto.randomBytes(keyLength); // generate a random key for the second password
+    return K1;
+  }
+
   shareFile(filename, user) {
     // download filename's key file of username user
 
@@ -346,9 +420,15 @@ class Config {
 
     // overwrite key file with new key file
   }
+
+  // encryptFileWithPath(fileNameWithPath) {
+  //   let self = this;
+  //   this.getSecretKey()
+  // }
+
   encryptFile(filename) {
     let self = this;  // so we can get `this` inside anonymous functions
-    this.getSecretKey(function(key) {
+    this.getSecretKey('.datasaltkey',function(key) {
       fs.readFile('./Documents/' + filename, function(err, rawfilecontents) {
         if (err) {
           console.log('error opening the file ./Documents/' + filename)
