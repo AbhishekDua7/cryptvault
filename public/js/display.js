@@ -82,71 +82,71 @@ function createProperties() {
 }
 
 
-// function createPropertiesFile(tags, values) {
-//     // implementation here
-//     // create properties object from array lists
-// const properties = {};
-// for (let i = 0; i < tags.length; i++) {
-//   properties[tags[i]] = values[i];
-// }
+function createPropertiesFile(tags, values) {
+    // implementation here
+    // create properties object from array lists
+const properties = {};
+for (let i = 0; i < tags.length; i++) {
+  properties[tags[i]] = values[i];
+}
 
-// // write properties object to file
-// fs.writeFile('data.properties', formatProperties(properties), function (err) {
-//   if (err) throw err;
-//   console.log('Properties file created!');
-// });
+// write properties object to file
+fs.writeFile('data.properties', formatProperties(properties), function (err) {
+  if (err) throw err;
+  console.log('Properties file created!');
+});
 
-// // function to format properties object into string
+// function to format properties object into string
 
-// }
+}
 
-function createProperties() {
-    let tags = [];
-    let values = [];
+// function createPropertiesFile() {
+//     let tags = [];
+//     let values = [];
   
-    // check if data.properties file already exists
-    if (fs.existsSync('data.properties')) {
-      // read current properties from file
-      const currentProperties = fs.readFileSync('data.properties', 'utf8');
+//     // check if data.properties file already exists
+//     if (fs.existsSync('data.properties')) {
+//       // read current properties from file
+//       const currentProperties = fs.readFileSync('data.properties', 'utf8');
     
-      // parse current properties into object
-      const parsedProperties = parseProperties(currentProperties);
+//       // parse current properties into object
+//       const parsedProperties = parseProperties(currentProperties);
   
-      // populate tags and values arrays with existing properties
-      for (let key in parsedProperties) {
-        tags.push(key);
-        values.push(parsedProperties[key]);
-      }
+//       // populate tags and values arrays with existing properties
+//       for (let key in parsedProperties) {
+//         tags.push(key);
+//         values.push(parsedProperties[key]);
+//       }
   
-      // update text area with existing properties
-      const propertiesTextArea = document.getElementById("propertiesTextArea");
-      propertiesTextArea.value = formatProperties(parsedProperties);
-    }
+//       // update text area with existing properties
+//       const propertiesTextArea = document.getElementById("propertiesTextArea");
+//       propertiesTextArea.value = formatProperties(parsedProperties);
+//     }
   
-    // add new properties from input fields
-    const tagInput = document.getElementById("tagInput").value;
-    const valueInput = document.getElementById("valueInput").value;
-    if (tagInput && valueInput) {
-      tags.push(tagInput);
-      values.push(valueInput);
-    }
+//     // add new properties from input fields
+//     const tagInput = document.getElementById("tagInput").value;
+//     const valueInput = document.getElementById("valueInput").value;
+//     if (tagInput && valueInput) {
+//       tags.push(tagInput);
+//       values.push(valueInput);
+//     }
   
-    // create properties object from arrays
-    const properties = {};
-    for (let i = 0; i < tags.length; i++) {
-      properties[tags[i]] = values[i];
-    }
+//     // create properties object from arrays
+//     const properties = {};
+//     for (let i = 0; i < tags.length; i++) {
+//       properties[tags[i]] = values[i];
+//     }
   
-    // write properties object to file
-    fs.writeFile('data.properties', formatProperties(properties), function (err) {
-      if (err) throw err;
-      console.log('Properties file created or updated!');
-    });
+//     // write properties object to file
+//     fs.writeFile('data.properties', formatProperties(properties), function (err) {
+//       if (err) throw err;
+//       console.log('Properties file created or updated!');
+//     });
   
-    // clear input fields
-    document.getElementById("tagInput").value = "";
-    document.getElementById("valueInput").value = "";
-  }
+//     // clear input fields
+//     document.getElementById("tagInput").value = "";
+//     document.getElementById("valueInput").value = "";
+//   }
   
 
 function formatProperties(properties) {
