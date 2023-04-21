@@ -58,7 +58,9 @@ ipc.on('invokeAction', (event, data) => {
         console.log('Run Good');
         event.sender.send('actionReply', data);
     }
+   
     config.listFiles(sendData, event);
+    config.listPublicFiles(sendData, event);
 });
 
 ipc.on('driveAction', (event, data) => {
