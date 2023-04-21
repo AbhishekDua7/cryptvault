@@ -38,7 +38,7 @@ function printFiles(folder)
         file[i].id = i;
         file[i].innerHTML = `
         <th scope="row"> ${i} </th>
-        <td class="col-actions"> ${(folder[1][3]) ? '<img src="' + folder[1][3] + '">' : '<i class="fas fa-lock"></i>'} </td>
+        <td class="col-actions"> ${(folder[i][3]) ? '<img src="' + folder[i][3] + '">' : '<i class="fas fa-lock"></i>'} </td>
         <td> ${folder[i][0]} </td>
         <td class="align-bottom col-actions">
             <button onClick="getInfo('${folder[i][1]}')">
