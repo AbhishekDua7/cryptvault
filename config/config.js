@@ -638,6 +638,14 @@ class Config {
     })
   }
 
+  getSecretKeyForData(callback) {
+    let self = this;
+    this.generateKeyUsingSalt(function(key2) {
+      self.getSecretKey(key2,)// todo add secret filename and pass callback
+    });
+
+  }
+
   getSecretKey(secretFileName,callback) {  // gets the symmetric key used to store unshared                        // docs
     const self = this;
     fs.stat(secretFileName, function(err, stats) {
@@ -645,6 +653,7 @@ class Config {
         if (err.code == 'ENOENT') {  // if key doesnt exist, make it
           let salt = crypto.randomBytes(32);
           let key = self.generateKeyUsingSalt(salt, userPassword);
+          // todo encrypt salt with key2
           fs.writeFile(secretFileName, salt, function(err) {
             if (err) throw err
           })
