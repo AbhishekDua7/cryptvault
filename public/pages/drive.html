@@ -60,10 +60,44 @@
                 <div class="col-md">
                     <button type="button" class="btn btn-primary" onclick="createProperties()">Create Properties File</button>
                     <button type="button" class="btn btn-primary" onclick="updateProperties()">Update Properties</button>
+                    <button class="btn btn-primary" onclick="openModal('passwordModal')">Click me</button>
                 </div>
             </div>
+        
+        <div id="passwordModal" class="modal">
+            <div class="modal-content">
+              <span class="close" onclick="closeModal('passwordModal')">&times;</span>
+              <p>Enter password:</p>
+              <input type="password" id="password">
+              <button class="btn btn-primary" onclick="checkPassword()">OK</button>
+            </div>
+          </div>
+      
+          <div id="checkboxModal" class="modal">
+            <div class="modal-content">
+              <span class="close" onclick="closeModal('checkboxModal')">&times;</span>
+              <p>Select options:</p>
+              <input type="checkbox" id="tag1">Tag 1<br>
+              <input type="checkbox" id="tag2">Tag 2<br>
+              <input type="checkbox" id="tag3">Tag 3<br>
+              <input type="checkbox" id="tag4">Tag 4<br>
+              <input type="checkbox" id="tag5">Tag 5<br>
+              <button class="btn btn-primary" onclick="openTextFields()">OK</button>
+            </div>
+          </div>
+      
+          <div id="textFieldModal" class="modal">
+              <div class="modal-content">
+                <span class="close" onclick="closeModal('textFieldModal')">&times;</span>
+                <p>Enter text:</p>
+                Tag 1: <input type="text" id="text1"><br>
+                Tag 2: <input type="text" id="text2"><br>
+                Tag 3: <input type="text" id="text3"><br>
+                Tag 4: <input type="text" id="text4"><br>
+                Tag 5: <input type="text" id="text5"><br>
+                <button class="btn btn-primary" onclick="closeModal('textFieldModal')">OK</button>
+              </div>
+          </div>
         </div>
-        
-        
     </body>
 </html>

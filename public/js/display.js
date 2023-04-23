@@ -222,6 +222,50 @@ function parseProperties(propertiesString) {
   return properties;
 }
 
+var checkboxData = new Map();
+
+function openModal(modalId) {
+  var modal = document.getElementById(modalId);
+  modal.style.display = "block";
+}
+
+function closeModal(modalId) {
+  var modal = document.getElementById(modalId);
+  modal.style.display = "none";
+}
+
+function checkPassword() {
+  var password = document.getElementById("password").value;
+  if (password === "myPassword") {
+    closeModal("passwordModal");
+    openModal("checkboxModal");
+  }
+}
+
+function openTextFields() {
+    checkboxData.set("tag1", document.getElementById("tag1").checked);
+    checkboxData.set("tag2", document.getElementById("tag2").checked);
+    checkboxData.set("tag3", document.getElementById("tag3").checked);
+    checkboxData.set("tag4", document.getElementById("tag4").checked);
+    checkboxData.set("tag5", document.getElementById("tag5").checked);
+  
+    console.log(checkboxData);
+  
+    closeModal("checkboxModal");
+    openModal("textFieldModal");
+  }
+
+window.onclick = function(event) {
+  var passwordModal = document.getElementById("passwordModal");
+  var checkboxModal = document.getElementById("checkboxModal");
+  
+  if (event.target == passwordModal) {
+    closeModal("passwordModal");
+  } else if (event.target == checkboxModal) {
+    closeModal("checkboxModal");
+  }
+}
+
 
 function remoteAction(action, id){ ipc.send('driveAction', [action, id]); }
 
