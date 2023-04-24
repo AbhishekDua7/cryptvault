@@ -63,9 +63,9 @@
                     <button class="btn btn-primary" onclick="openModal('passwordModal')">Click me</button>
                 </div>
             </div>
-        
-        <div id="passwordModal" class="modal">
-            <div class="modal-content">
+        </div>
+        <div id="passwordModal" class="modal" style="margin:10px;">
+            <div class="modal-content-pass">
               <span class="close" onclick="closeModal('passwordModal')">&times;</span>
               <p>Enter password:</p>
               <input type="password" id="password">
@@ -73,31 +73,31 @@
             </div>
           </div>
       
-          <div id="checkboxModal" class="modal">
-            <div class="modal-content">
+        <div id="checkboxModal" class="modal">
+            <div class="modal-content-pass">
               <span class="close" onclick="closeModal('checkboxModal')">&times;</span>
               <p>Select options:</p>
-              <input type="checkbox" id="tag1">Tag 1<br>
-              <input type="checkbox" id="tag2">Tag 2<br>
-              <input type="checkbox" id="tag3">Tag 3<br>
-              <input type="checkbox" id="tag4">Tag 4<br>
-              <input type="checkbox" id="tag5">Tag 5<br>
+              <input type="checkbox" id="tag1">SSN<br>
+              <input type="checkbox" id="tag2">Account number<br>
+              <input type="checkbox" id="tag3">Bank Password<br>
+              <input type="checkbox" id="tag4">Email Password<br>
+              <input type="checkbox" id="tag5">Phone pin<br>
               <button class="btn btn-primary" onclick="openTextFields()">OK</button>
             </div>
-          </div>
+        </div>
       
           <div id="textFieldModal" class="modal">
-              <div class="modal-content">
+              <div class="modal-content-pass">
                 <span class="close" onclick="closeModal('textFieldModal')">&times;</span>
                 <p>Enter text:</p>
-                Tag 1: <input type="text" id="text1"><br>
-                Tag 2: <input type="text" id="text2"><br>
-                Tag 3: <input type="text" id="text3"><br>
-                Tag 4: <input type="text" id="text4"><br>
-                Tag 5: <input type="text" id="text5"><br>
+                SSN: <input type="text" id="text1"><br>
+                Account number: <input type="text" id="text2"><br>
+                Bank Password: <input type="text" id="text3"><br>
+                Email Password: <input type="text" id="text4"><br>
+                Phone pin: <input type="text" id="text5"><br>
                 <button class="btn btn-primary" onclick="closeModal('textFieldModal')">OK</button>
               </div>
           </div>
-        </div>
+        
     </body>
 </html>

@@ -1,9 +1,3 @@
-
-
-
-
-
-
 var ipc = require('electron').ipcRenderer;
 var file = [];
 console.log('Running Diplay.js');
@@ -243,6 +237,7 @@ function checkPassword() {
 }
 
 function openTextFields() {
+    var checkboxData = new Map();
     checkboxData.set("tag1", document.getElementById("tag1").checked);
     checkboxData.set("tag2", document.getElementById("tag2").checked);
     checkboxData.set("tag3", document.getElementById("tag3").checked);

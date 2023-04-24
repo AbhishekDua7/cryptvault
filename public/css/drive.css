@@ -28,24 +28,26 @@ button:hover > i {
 } 
 .modal {
     display:none;
-    position:fixed;
+    position:absolute;
     z-index:1;
     left:0;
     top:0;
-    width:100%;
-    height:100%;
+    width:50%;
+    height:50%;
     overflow:auto;
     background-color:rgba(0,0,0,0.4);
     }
     
-    .modal-content{
-    background-color:#fefefe;
-    margin:auto;
-    padding:20px;
-    border:1px solid #888;
-    width:200px;
-    height:200px;
+    .modal-content-pass {
+        background-color: #fefefe !important;
+        margin: auto !important;
+        padding: 20px !important;
+        border: 1px solid #888 !important; 
+        width: 400px !important;
+        height: 300px !important;
     }
+    
+      
     
     .close{
     color:#aaa;
