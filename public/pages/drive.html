@@ -61,6 +61,9 @@
                     <button type="button" class="btn btn-primary" onclick="createProperties()">Create Properties File</button>
                     <button type="button" class="btn btn-primary" onclick="updateProperties()">Update Properties</button>
                     <button class="btn btn-primary" onclick="openModal('passwordModal')">Click me</button>
+                    <button type="button" class="btn btn-primary" onclick="showPasswordModal()">Share</button>
+                    <button type="button" class="btn btn-primary" onclick="openShamirKeysInputModal()">Decrypt</button>
+
                 </div>
             </div>
         </div>
@@ -69,7 +72,7 @@
               <span class="close" onclick="closeModal('passwordModal')">&times;</span>
               <p>Enter password:</p>
               <input type="password" id="password">
-              <button class="btn btn-primary" onclick="checkPassword()">OK</button>
+              <button id="shareBtn" class="btn btn-primary" onclick="checkPassword()">OK</button>
             </div>
           </div>
       
@@ -98,6 +101,38 @@
                 <button class="btn btn-primary" onclick="closeModal('textFieldModal')">OK</button>
               </div>
           </div>
+        </div>
+
+        <div id="shamirPasswordModal" class="modal">
+            <div class="modal-content">
+              <span class="close" onclick="closePasswordModal()">&times;</span>
+              <p>Enter password:</p>
+              <input type="password" id="shamirPassword">
+              <button class="btn btn-primary" onclick="validatePasswordAndGenerateShamirKeys()">OK</button>
+            </div>
+        </div>
+
+        <div id="shamirKeysModal" class="modal">
+            <div class="modal-content">
+              <span class="close" onclick="closeShamirKeysModal()">&times;</span>
+              <p>Shamir Keys:</p>
+              <div id="shamirKeyDisplay1"></div>
+              <div id="shamirKeyDisplay2"></div>
+              <div id="shamirKeyDisplay3"></div>
+            </div>
+        </div> 
         
+        <div id="shamirKeysInputModal" class="modal">
+            <div class="modal-content">
+              <span class="close" onclick="closeModal('shamirKeysInputModal')">&times;</span>
+              <p>Enter at least two Shamir keys:</p>
+              Key 1: <input type="text" id="inputShamirKey1"><br>
+              Key 2: <input type="text" id="inputShamirKey2"><br>
+              Key 3: <input type="text" id="inputShamirKey3"><br>
+              <button class="btn btn-primary" onclick="decryptDataUsingShamirKeys()">OK</button>
+            </div>
+        </div>
+          
+          
     </body>
 </html>

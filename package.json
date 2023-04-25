@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "express": "^4.16.4",
-    "googleapis": "^118.0.0"
+    "googleapis": "^118.0.0",
+    "secrets.js-grempe": "^2.0.0"
   }
 }

@@ -1,3 +1,9 @@
+
+
+
+const secrets = require('secrets.js-grempe');
+
+
 var ipc = require('electron').ipcRenderer;
 var file = [];
 console.log('Running Diplay.js');
@@ -273,4 +279,114 @@ ipc.once('actionReply', function(event, response){
 });
 
 ipc.send('invokeAction', 'someData');
+
+function showPasswordModal() {
+  document.getElementById("shamirPasswordModal").style.display = "block";
+}
+
+function closePasswordModal() {
+  document.getElementById("shamirPasswordModal").style.display = "none";
+}
+
+function generateRandomKey() {
+  let key = "";
+  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  for (let i = 0; i < 32; i++) {
+    key += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+  return key;
+}
+
+// Create the Shamir shares
+function createShamirShares(key) {
+  const n = 3;
+  const t = 2;
+  const hexKey = secrets.str2hex(key); // Convert the key to a hex string
+  const shares = secrets.share(hexKey, n, t);
+  return shares;
+}
+
+function validatePasswordAndGenerateShamirKeys() {
+  const enteredPassword = document.getElementById("shamirPassword").value;
+  // Replace the following line with the code to check if the entered password is valid
+  const isValidPassword = enteredPassword === "myPassword";
+
+  if (!isValidPassword) {
+    alert("Invalid password!");
+    return;
+  }
+
+  // Close the password prompt modal
+  closePasswordModal();
+
+  // Generate and display Shamir keys
+  generateAndDisplayShamirKeys();
+
+}
+
+function showShamirKeysModal() {
+  document.getElementById("shamirKeysModal").style.display = "block";
+}
+
+function closeShamirKeysModal() {
+  document.getElementById("shamirKeysModal").style.display = "none";
+}
+
+
+function generateAndDisplayShamirKeys() {
+  // >>> ???
+  const encryptionKey = "---";
+  const hexKey = secrets.str2hex(encryptionKey);
+
+  const shamirShares = secrets.share(hexKey, 3, 2);
+  document.getElementById("shamirKeyDisplay1").innerText = shamirShares[0];
+  document.getElementById("shamirKeyDisplay2").innerText = shamirShares[1];
+  document.getElementById("shamirKeyDisplay3").innerText = shamirShares[2];
+
+  showShamirKeysModal();
+}
+
+function decryptDataUsingShamirKeys() {
+ 
+  const inputShamirKey1 = document.getElementById("inputShamirKey1").value;
+  const inputShamirKey2 = document.getElementById("inputShamirKey2").value;
+  const inputShamirKey3 = document.getElementById("inputShamirKey3").value;
+
+  const keysEntered = [inputShamirKey1, inputShamirKey2, inputShamirKey3].filter(key => key.trim() !== "");
+
+  if (keysEntered.length < 2) {
+    alert("Please enter at least two keys!");
+    return;
+  }
+
+  const combinedKey = secrets.combine(keysEntered);
+  const decryptedKey = secrets.hex2str(combinedKey);
+
+  // Use the decryptedKey to decrypt the data
+  // ...
+
+  // Display decrypted data in a prompt or another modal
+  // ...
+
+
+}
+
+function openShamirKeysInputModal() {
+  document.getElementById("shamirKeysInputModal").style.display = "block";
+}
+
+function closeShamirKeysInputModal() {
+  document.getElementById("shamirKeysInputModal").style.display = "none";
+}
+
+
+
+
+
+
+
+
+
+
+
 
