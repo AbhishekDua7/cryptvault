@@ -5,7 +5,7 @@ const path = require('path');
 const {app, BrowserWindow} = require('electron');
 
 const {launchServer} = require('./localServer');
-const config = require('./config/config');
+const config = require('./config/config1');
 let win = null;
 
 function launchApp(){

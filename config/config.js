@@ -401,6 +401,7 @@ class Config {
                 console.log('ENCRYPTED FILE CONTENTS:')
                 console.dir(filewithdata.data)
                 self.getSecretKey('.saltkey',function(key) {
+                  console.log('key file is ' + key);
                   let decipher = crypto.createDecipheriv('aes-256-gcm', key, iv)
                   let cleartext =
                       decipher.update(filewithdata.data, 'binary', 'binary')

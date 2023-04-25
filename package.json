@@ -22,6 +22,10 @@
   "dependencies": {
     "express": "^4.16.4",
     "googleapis": "^118.0.0",
+<<<<<<< HEAD
     "secrets.js-grempe": "^2.0.0"
+=======
+    "properties-parser": "^0.3.1"
+>>>>>>> 9b572d1 (changes salting)
   }
 }

@@ -1,4 +1,4 @@
-const config = require('./config/config');
+const config = require('./config/config1');
 const path = require('path');
 const express = require('express');
 const app = express();
@@ -60,7 +60,7 @@ ipc.on('invokeAction', (event, data) => {
     }
    
     config.listFiles(sendData, event);
-    config.listPublicFiles(sendData, event);
+    //config.listPublicFiles(sendData, event);
 });
 
 ipc.on('driveAction', (event, data) => {

@@ -1,9 +1,12 @@
 
 
+<<<<<<< HEAD
 
 const secrets = require('secrets.js-grempe');
 
 
+=======
+>>>>>>> 9b572d1 (changes salting)
 var ipc = require('electron').ipcRenderer;
 var file = [];
 console.log('Running Diplay.js');
