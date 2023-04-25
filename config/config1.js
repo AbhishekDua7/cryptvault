@@ -483,6 +483,13 @@ class Config1 {
     return properties;
   }
 
+  verifyPassword(userPwd) {
+    let userPass = Buffer.from(userPwd,'binary');
+    let iv = this.getIVFromPrivateStore();
+    let key2= this.getKeyFromPrivateSalt(Buffer.from(userPassword));
+    return this.decryptAndValidateSampleFile(key2);
+  }
+
   tryReadProp() {
    
     let iv = this.getIVFromPrivateStore();

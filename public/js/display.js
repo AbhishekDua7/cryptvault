@@ -1,12 +1,5 @@
 
-
-<<<<<<< HEAD
-
 const secrets = require('secrets.js-grempe');
-
-
-=======
->>>>>>> 9b572d1 (changes salting)
 var ipc = require('electron').ipcRenderer;
 var file = [];
 console.log('Running Diplay.js');
@@ -259,16 +252,16 @@ function openTextFields() {
     openModal("textFieldModal");
   }
 
-window.onclick = function(event) {
-  var passwordModal = document.getElementById("passwordModal");
-  var checkboxModal = document.getElementById("checkboxModal");
+// window.onclick = function(event) {
+//   var passwordModal = document.getElementById("passwordModal");
+//   var checkboxModal = document.getElementById("checkboxModal");
   
-  if (event.target == passwordModal) {
-    closeModal("passwordModal");
-  } else if (event.target == checkboxModal) {
-    closeModal("checkboxModal");
-  }
-}
+//   if (event.target == passwordModal) {
+//     closeModal("passwordModal");
+//   } else if (event.target == checkboxModal) {
+//     closeModal("checkboxModal");
+//   }
+// }
 
 
 function remoteAction(action, id){ ipc.send('driveAction', [action, id]); }
@@ -320,10 +313,10 @@ function validatePasswordAndGenerateShamirKeys() {
   }
 
   // Close the password prompt modal
-  closePasswordModal();
+  //closePasswordModal();
 
   // Generate and display Shamir keys
-  generateAndDisplayShamirKeys();
+ // generateAndDisplayShamirKeys();
 
 }
 
