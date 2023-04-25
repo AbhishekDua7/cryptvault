@@ -426,7 +426,6 @@ class Config1 {
 
   // code to download and display files
   listFiles(callback, eventVal) {
-
     // Test Output
     event = eventVal;
     folder = [];
