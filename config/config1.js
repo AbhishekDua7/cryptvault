@@ -14,10 +14,10 @@ const saltkeyFilePath = './Documents/saltkey.bin';
 const saltkeyFileName = 'saltkey.bin';
 const ivkeyFilePath = './Documents/iv.bin';
 const ivkeyFileName = 'iv.bin';
-const datakeyFilePath = './PublicDocuments/encryptedkey.bin';
-const datakeyfileName = 'encryptedkey.bin';
-const dataFilePath = './PublicDocuments/userdata.bin';
-const dataFileName = 'userdata.bin'
+const datakeyFilePath = './PublicDocuments/publicsalt.bin';
+const datakeyfileName = 'publicsalt.bin';
+const dataFilePath = './PublicDocuments/userdata.json';
+const dataFileName = 'userdata.json'
 const sampleDataFilePath = './Documents/sample.bin';
 const sampleText = "Hello DbSec";
 const sampleFileName = 'sample.bin';
@@ -190,6 +190,7 @@ class Config1 {
     }
     var fileId = '';
     for(var i =0; i<providedFolder.length;i++) {
+      console.log('Checking file for id ==========' + providedFolder[i][0]);
         if (fileName == providedFolder[i][0]) {
             fileId = providedFolder[i][1];
             break;
@@ -306,10 +307,10 @@ class Config1 {
   getSaltFromPublicStore(userPwd) {
     // this.generateAndUploadSaltForPrivateStore();
      try {
-       let privateSalt = this.getSaltFromPrivateStore();
-       let key2 = this.generateKeyUsingSalt(privateSalt, userPwd);
-       let publicSalt = this.decryptAndReadPropertiesFile(datakeyFilePath, key2)
-       console.log('Decrypted public salt = ' + publicSalt);
+      //  let privateSalt = this.getSaltFromPrivateStore();
+      //  let key2 = this.generateKeyUsingSalt(privateSalt, userPwd);
+       let publicSalt = Buffer.from(fs.readFileSync(datakeyFilePath),'binary') //this.decryptAndReadPropertiesFile(datakeyFilePath, key2)
+       console.log(' public salt = ' + publicSalt);
        return publicSalt;
      } catch (error) {
        console.log(error);
@@ -351,12 +352,29 @@ class Config1 {
     return cipheredData;
   }
 
+  encryptGivenDataUsingPrivateSalt(userdata, userPwd) {
+    let userPass = Buffer.from(userPwd, 'binary');
+    let key = this.getKeyFromPrivateSalt(userPass);
+    let iv = this.getIVFromPrivateStore();
+    let cipheredData  = this.encryptData(userdata,key,iv,'binary');
+    return cipheredData;
+  }
+
   decryptGivenDataUsingPublicDataSalt(encryptedData, userPwd) {
     let userPass = Buffer.from(userPwd, 'binary');
     let key = this.getKeyFromPublicSalt(userPass);
     let iv = this.getIVFromPrivateStore();
     let clearData = this.decryptData(encryptedData,key,iv,'binary');
-    console.log('Decrypted Userdata='+ clearData);
+    console.log('Decrypted Public Userdata='+ clearData);
+    return clearData;
+  }
+
+  decryptGivenDataUsingPrivateSalt(encryptedData, userPwd) {
+    let userPass = Buffer.from(userPwd, 'binary');
+    let key = this.getKeyFromPrivateSalt(userPass);
+    let iv = this.getIVFromPrivateStore();
+    let clearData = this.decryptData(encryptedData,key,iv,'binary');
+    console.log('Decrypted Private Userdata='+ clearData);
     return clearData;
   }
 
@@ -367,13 +385,16 @@ class Config1 {
     // let key = this.getKeyFromPublicSalt(userPass);
     // console.log(' key for user data =' + key);
     let iv = this.getIVFromPrivateStore();
-    let propData=this.encryptGivenDataUsingPublicDataSalt(values[0],userPwd);
-    // for(var i=0;i<keys.length;i++) {
-    //   let cipheredData  = this.encryptGivenDataUsingPublicDataSalt(values[i], userPwd);
-    //   propData+=''+keys[i]+'='+cipheredData+'\n';
-    // }
-    console.log('prop user data = '+ propData); 
-    let binprop = Buffer.from(propData,'binary'); 
+    
+    let propData= {};//this.encryptGivenDataUsingPublicDataSalt(values[0],userPwd);
+    for(var i=0;i<keys.length;i++) {
+      let cipheredKey = Buffer.from(this.encryptGivenDataUsingPrivateSalt(keys[i], userPwd),'binary');
+      let cipheredData  = Buffer.from(this.encryptGivenDataUsingPublicDataSalt(values[i], userPwd),'binary');
+      propData[cipheredKey.toString('base64')]=cipheredData.toString('base64');
+     // propData+=keys[i]+'='+cipheredData+'\n';
+    }
+    console.log('prop user data = '+ JSON.stringify(propData)); 
+    let binprop = Buffer.from(JSON.stringify(propData),'utf8'); 
     console.log('prop user data = '+ binprop); 
     this.createOrUpdateFile(dataFilePath,dataFileName,iv,binprop, false);
   }
@@ -385,11 +406,17 @@ class Config1 {
    // let clearData = this.decryptAndReadPropertiesFile(dataFilePath, key)
    // console.log('Decrypted Userdata='+ clearData);
    let encData = fs.readFileSync(dataFilePath);
-  // let prop = this.parsePropertiesData(encData);
-  // for(var i=0;i<keys.length;i++) {
+   let propData = JSON.parse(encData.toString('utf8'));
+   //let prop = this.parsePropertiesData(encData);
+//Buffer.from(encData,'binary')
+   for(var i=0;i<keys.length;i++) {
     //prop[keys[i]]
-      this.decryptGivenDataUsingPublicDataSalt(Buffer.from(encData,'binary'),userPwd);
-  // }
+      var encKey = Buffer.from(this.encryptGivenDataUsingPrivateSalt(keys[i], userPwd),'binary');
+      var encKeyVal = encKey.toString('base64');
+      this.decryptGivenDataUsingPrivateSalt(Buffer.from(encKey, 'base64'),userPwd);
+      var encDataVal = Buffer.from(propData[encKeyVal],'base64');
+      this.decryptGivenDataUsingPublicDataSalt(encDataVal,userPwd);
+   }
   }
 
 
@@ -401,12 +428,13 @@ class Config1 {
     } else {
       let salt = Buffer.from(crypto.randomBytes(32),'binary');
       console.log('Writing public salt');
-      let iv = this.getIVFromPrivateStore();
-      let key2 = this.getKeyFromPrivateSalt(userPwd);
-      console.log('\n\nPlain content= '+ salt);
-      let encryptedContent= this.encryptData(salt,key2, iv, 'binary');
-      console.log('encrypted content=' +encryptedContent);
-      this.createOrUpdateFile(datakeyFilePath,datakeyfileName,iv,encryptedContent,false);
+       let iv = this.getIVFromPrivateStore();
+      // let key2 = this.getKeyFromPrivateSalt(userPwd);
+      // console.log('\n\nPlain content= '+ salt);
+      // let encryptedContent= this.encryptData(salt,key2, iv, 'binary');
+     // console.log('encrypted content=' +encryptedContent);
+     //encryptedContent
+      this.createOrUpdateFile(datakeyFilePath,datakeyfileName,iv,salt,false);
     }
   }
 
@@ -430,57 +458,23 @@ class Config1 {
     event = eventVal;
     folder = [];
     publicfolder = [];
-    this.listPrivateFiles2(callback);
+    this.listPrivateFiles();
     isPasswordCreated = this.checkFileSync(sampleDataFilePath);
     console.log('Password created = ' + isPasswordCreated);
    // this.handleUserPasswordCreation(userPassword);
     if (isPasswordCreated == true) {
      // console.log('Listing public files');
-     // this.listPublicFiles(callback);
-        // if (!this.checkFileSync(datakeyFilePath)) {
-        //   this.storePublicSalt(userPassword);
-        // }
+      this.listPublicFiles(callback);
+      // if (!this.checkFileSync(datakeyFilePath)) {
+      //      this.storePublicSalt(userPassword);
+      // }
       // this.tryReadProp();
-     // this.encryptAndStoreUserData(['Name'],['Abhishek'], userPassword);
+    // this.encryptAndStoreUserData(['Name'],['Abhishek'], userPassword);
       this.decryptFileDataAndRead(['Name'],userPassword);
     } else {
       
      // this.handleUserPasswordCreation(userPassword);
     }
-  }
-
-  // createPropertiesData(tags, values) {
-  //   // implementation here
-  //   // create properties object from array lists
-  //   const properties = {};
-  //   for (let i = 0; i < tags.length; i++) {
-  //     properties[tags[i]] = values[i];
-  //   }
-  //   return properties
-  // }
-
-  // formatPropertiesDataForStorage(properties) {
-  //   let output = '';
-  //   for (let key in properties) {
-  //     output += key + '=' + properties[key] + '\n';
-  //   }
-  //   return output;
-  // }
-
-  parsePropertiesData(propertiesString) {
-    console.log('Properties provided \n' + propertiesString);
-    var properties = {};
-    const lines = propertiesString.toString().split('\n');
-    for (let i = 0; i < lines.length; i++) {
-      const parts = lines[i].split('=');
-      if (parts.length >= 2) {
-        const key = parts[0].trim();
-        const value = parts[1].trim();
-        console.log('Adding key '+ key + ' and value=' + value);
-        properties[key] = value;
-      }
-    }
-    return properties;
   }
 
   verifyPassword(userPwd) {
@@ -607,7 +601,7 @@ class Config1 {
               console.log(`${file.name} : (${file.id})`);
               publicfolder.push([file.name, file.id]);
             });
-            callback(folder);
+            callback(publicfolder);
           } else {
             console.log('No Files in public :(');
           }
@@ -805,7 +799,7 @@ class Config1 {
   }
 
   reload() {
-    event.sender.send('actionReply', folder);
+    event.sender.send('actionReply', publicfolder);
     //event.sender.send('actionReply', folder);
     console.log('reloaded')
   }
