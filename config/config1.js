@@ -409,14 +409,17 @@ class Config1 {
    let propData = JSON.parse(encData.toString('utf8'));
    //let prop = this.parsePropertiesData(encData);
 //Buffer.from(encData,'binary')
+   let op = {};
    for(var i=0;i<keys.length;i++) {
     //prop[keys[i]]
       var encKey = Buffer.from(this.encryptGivenDataUsingPrivateSalt(keys[i], userPwd),'binary');
       var encKeyVal = encKey.toString('base64');
-      this.decryptGivenDataUsingPrivateSalt(Buffer.from(encKey, 'base64'),userPwd);
+      let decKey = this.decryptGivenDataUsingPrivateSalt(Buffer.from(encKey, 'base64'),userPwd);
       var encDataVal = Buffer.from(propData[encKeyVal],'base64');
-      this.decryptGivenDataUsingPublicDataSalt(encDataVal,userPwd);
+      let decVal = this.decryptGivenDataUsingPublicDataSalt(encDataVal,userPwd);
+      op[decKey]=decVal;
    }
+   return op;
   }
 
 
@@ -440,6 +443,7 @@ class Config1 {
 
   // be very careful to use this method with validation only. it will override the basic file
   handleUserPasswordCreation(userPwd) {
+     //todo getdecdata and encdata if files exist using old pwd before
     userPwd = Buffer.from(userPwd);
     console.log('creating password ');
     let key2 = this.getKeyFromPrivateSalt(userPwd);
@@ -447,6 +451,7 @@ class Config1 {
     let iv = this.getIVFromPrivateStore();
     this.createSampleFile(key2, iv);
     this.storePublicSalt(userPwd);
+   
     //ipc.send('PasswordGenerated', 'success');
   }
 
