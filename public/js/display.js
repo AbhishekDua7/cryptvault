@@ -117,10 +117,11 @@ function updateModalUI() {
     document.getElementById("errorLabelText").display = "block";
     return;
   }
-
+  document.getElementById("errorLabelText").display = "none";
   var k = Object.values(revtextMap)
   for(var i=0;i<k.length;i++) {
     var textinput = document.getElementById(k[i]);
+    textinput.disabled = true;
     textinput.value = ''; 
   }
 
@@ -151,6 +152,11 @@ function closeModal(modalId) {
 function handleTextFieldModalClose() {
   let k = [];
   let v = [];
+  if(userDecryptedData.hasOwnProperty("error")) {
+    document.getElementById("errorLabelText").display = "block";
+    closeModal("textFieldModal")
+    return;
+  }
   document.getElementById("errorLabelText").display = "none";
   for(var i=0;i<requestedKeys.length;i++) {
     k.push(requestedKeys[i]);

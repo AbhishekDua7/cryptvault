@@ -22,6 +22,8 @@ const dataFileName = 'userdata.json'
 const sampleDataFilePath = './Documents/sample.bin';
 const sampleText = "Hello DbSec";
 const sampleFileName = 'sample.bin';
+const lenFilePath = './Documents/len.txt'
+const lenFileName = 'len.txt'
 const acceptableTagList = ['SSN','Account Number','Bank Password','Phone Pin','Other']
 // todo add check for this list in listfiles
 const acceptableNames = [saltkeyFileName, 'encypteddata.properties', 'userdata.properties'];
@@ -46,7 +48,7 @@ class Config1 {
             {index: '/index', drive: '/drive', login: '/login', direct: '/direct'};
     
         // Google Auth
-        this.scopes = ['https://www.googleapis.com/auth/drive','https://www.googleapis.com/auth/drive.appfolder'];
+        this.scopes = ['https://www.googleapis.com/auth/drive','https://www.googleapis.com/auth/drive.appfolder','https://www.googleapis.com/auth/drive.metadata'];
         this.urlRedirect = this.url + this.paths.direct;
         this.loginURL = null;
     
@@ -147,6 +149,33 @@ class Config1 {
     {return false;}
   }
 
+  saveFileLen(fileName) {
+    if (fileName == dataFileName) {
+      var data = fs.readFileSync(dataFilePath);
+      fs.writeFileSync(lenFilePath, data.length+'');
+      let iv = this.getIVFromPrivateStore();
+      this.uploadFileToCloud(lenFilePath,lenFileName,iv,true);
+    }
+  } 
+
+  FileLenMatch(fileName) {
+    if (fileName==dataFileName && this.checkFileSync(lenFilePath) && this.checkFileSync(dataFilePath)) {
+      var datalen = fs.readFileSync(dataFilePath).length+'';
+      var l = fs.readFileSync(lenFilePath);
+      console.log('SavedLen='+ l);
+      console.log('DataLen='+ datalen);
+      if (l == datalen) {
+        userFileModified = false;
+      } else {
+        userFileModified = true;
+      }
+     
+    } else {
+      userFileModified = false;
+    }
+    
+  } 
+
   // assumes the files exists
   uploadFileToCloud(filePath, fileName, iv, isPrivate) {
     let self = this;
@@ -167,6 +196,7 @@ class Config1 {
                 console.error('Error updating file:', err);
                 return;
               }
+              self.saveFileLen(fileName);
               console.log(`File modified time: ${file.modifiedTime}`);
               console.log(`File modified by me time: ${file.modifiedByMeTime}`);
               self.downloadfile(drive,fileName,isPrivate, fileId); 
@@ -189,12 +219,12 @@ class Config1 {
                 console.error(err);
               } else {
                 ivMap.set(fileName, iv);
+                self.saveFileLen(fileName);
                 console.log(
                     'Uploaded file \"' + fileName + '\", File Id: ', file.data.id);
                 console.log(`File modified time: ${file.modifiedTime}`);
                 console.log(`File modified by me time: ${file.modifiedByMeTime}`);    
                 self.downloadfile(drive,fileName,isPrivate, file.data.id);    
-
               }
         });
     }
@@ -810,17 +840,19 @@ class Config1 {
         console.log("Ts for filename="+fileName);
         console.log('Modifiedbyme='+ modifiedByMeTs);
         console.log('ModifiedTime=' + modifiedTs);
-        if (dataFileName == fileName) {
-          if (modifiedByMeTs == modifiedTs) {
-            userFileModified = false;
-          } else {
-            userFileModified = true;
-          }
+      
+        // if (dataFileName == fileName) {
+        //   if (modifiedByMeTs == modifiedTs) {
+        //     userFileModified = false;
+        //   } else {
+        //     userFileModified = true;
+        //   }
           
-        }
+        // }
 
         res.data.pipe(destFileStream);
         destFileStream.on('finish', () => {
+          self.FileLenMatch(fileName);
           console.log(fileName +' - File downloaded successfully data=' + res.data);
         });
       }
@@ -865,6 +897,8 @@ class Config1 {
       //let values = ['','','','',''];
       //this.encryptAndStoreUserData(acceptableTagList, values,data[1]);
     } else {
+      this.FileLenMatch(dataFileName);
+      console.log('Decrypting data for modifying  isFIleModified=' + userFileModified);
       if (userFileModified == true) {
         var prop = {
           "error":"Modified File"
