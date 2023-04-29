@@ -113,7 +113,18 @@ function openModal(modalId) {
 }
 
 function updateModalUI() {
-  var userData = new Map();
+  if(userDecryptedData.hasOwnProperty("error")) {
+    document.getElementById("errorLabelText").display = "block";
+    return;
+  }
+
+  var k = Object.values(revtextMap)
+  for(var i=0;i<k.length;i++) {
+    var textinput = document.getElementById(k[i]);
+    textinput.value = ''; 
+  }
+
+
   for(var i=0;i<requestedKeys.length;i++) {
     var textinput = document.getElementById(revtextMap[requestedKeys[i]]);
     textinput.disabled = false;
@@ -130,9 +141,9 @@ function closeModal(modalId) {
     document.getElementById("password").value='';
     document.getElementById("errorLabel").style.display="none";
   }
-  if (modalId == "textFieldModal") {
-    handleTextFieldModalClose();
-  } 
+  // if (modalId == "textFieldModal") {
+  //   handleTextFieldModalClose();
+  // } 
   modal.style.display = "none";
   
 }
@@ -140,30 +151,24 @@ function closeModal(modalId) {
 function handleTextFieldModalClose() {
   let k = [];
   let v = [];
+  document.getElementById("errorLabelText").display = "none";
   for(var i=0;i<requestedKeys.length;i++) {
     k.push(requestedKeys[i]);
     var textinput = document.getElementById(revtextMap[requestedKeys[i]]);
     v.push(textinput.value);
   }
-  
   ipc.send('SaveUserDataForKeysEvent', [k,v, userValidPwd]);
 }
 
 function handleTextFieldModalCloseResponse(resp) {
+    //closeModal("textFieldModal");
     if (resp == true) {
-      dialog.showMessageBox(null, {
-        type: 'info',
-        message: 'Success',
-        buttons: ['OK']
-      })
+      document.getElementById("errorLabelText").display = "none";
+      closeModal("textFieldModal");
+      userDecryptedData = {};
     } else {
-      dialog.showMessageBox(null, {
-        type: 'info',
-        message: 'Failed to store',
-        buttons: ['OK']
-      })
+      document.getElementById("errorLabelText").display = "block";
     }
-    userDecryptedData = {};
 }
 
  function checkPassword(tag) {
@@ -174,16 +179,6 @@ function handleTextFieldModalCloseResponse(resp) {
   console.log('Sending ' + password);
   this.userValidPwd = password;
   ipc.send('VerifyPassword', [password, tag]);
- // const response = await ipc.send('VerifyPassword', password);
- // console.log(response);
-  // var passwordValid = false;  //confighelper.verifyPassword(password);
-  // if (passwordValid) {
-  //   closeModal("passwordModal");
-  //   openModal("checkboxModal");
-  // } else {
-  //   var errorLabel = document.getElementById("errorLabel");
-  //   errorLabel.style.display = "block";
-  // }
 }
 
 function loadcheckboxModal() {
@@ -242,17 +237,6 @@ ipc.on('SaveUserDataForKeysReply', function(event, response){
   console.log("Encrypted and saved="+ response);
   handleTextFieldModalCloseResponse(response);
 });
-
-// window.onclick = function(event) {
-//   var passwordModal = document.getElementById("passwordModal");
-//   var checkboxModal = document.getElementById("checkboxModal");
-  
-//   if (event.target == passwordModal) {
-//     closeModal("passwordModal");
-//   } else if (event.target == checkboxModal) {
-//     closeModal("checkboxModal");
-//   }
-// }
 
 
 function remoteAction(action, id){ ipc.send('driveAction', [action, id]); }
