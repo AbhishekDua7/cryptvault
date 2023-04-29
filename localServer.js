@@ -71,6 +71,8 @@ ipc.on('VerifyPassword', (event, data) => {
         event.sender.send('VerifyPasswordReply', data2);
     }
    // config.uploadprivatesaltandiv();
+   //let dataToPrint = config.decryptFileDataUsingKey(config.getKeyFromPublicSalt(data[0]));
+   // console.log('Key generated = '+ Object.keys(dataToPrint) +'\n'+ Object.values(dataToPrint));
     config.verifyPasswordEvent(data, sendData, event)
 })
 

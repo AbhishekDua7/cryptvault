@@ -310,7 +310,7 @@ class Config1 {
       try {
         const encryptedData = fs.readFileSync(filePath);
         const iv =this.getIVFromPrivateStore();
-        const propData = Buffer.from(this.decryptData(encryptedData, key, iv, 'binary'),'binary');
+        const propData = this.decryptData(encryptedData, key, iv, 'binary');
         console.log('Decrypted clear text ' + propData);
         return propData;
         } catch(error) {
@@ -418,6 +418,15 @@ class Config1 {
     return clearData;
   }
 
+  decryptGivenDataUsingPublicKey(encryptedData, key) {
+   // let userPass = Buffer.from(userPwd, 'binary');
+   // let key = this.getKeyFromPublicSalt(userPass);
+    let iv = this.getIVFromPrivateStore();
+    let clearData = this.decryptData(encryptedData,key,iv,'binary');
+    console.log('Decrypted Public Userdata='+ clearData);
+    return clearData;
+  }
+
   decryptGivenDataUsingPrivateSalt(encryptedData, userPwd) {
     let userPass = Buffer.from(userPwd, 'binary');
     let key = this.getKeyFromPrivateSalt(userPass);
@@ -459,6 +468,24 @@ class Config1 {
    }
    return op;
   }
+
+  decryptFileDataUsingKey(key) {
+    if (!this.checkFileSync(dataFilePath)) {return {"error":''};}
+    let encData = fs.readFileSync(dataFilePath);
+    let propData = JSON.parse(encData.toString('utf8'));
+    let op = {};
+    let userdata = Object.values(propData);
+    for(var i=0;i<acceptableTagList.length;i++) {
+     //prop[keys[i]]
+       //var encKey = Buffer.from(this.encryptGivenDataUsingPrivateSalt(keys[i], userPwd),'binary');
+      // var encKeyVal = encKey.toString('base64');
+      //  let decKey = this.decryptGivenDataUsingPrivateSalt(Buffer.from(encKey, 'base64'),userPwd);
+       var encDataVal = Buffer.from(userdata[i],'base64');
+       let decVal = this.decryptGivenDataUsingPublicKey(encDataVal,key);
+       op[acceptableTagList[i]]=decVal;
+    }
+    return op;
+   }
 
 
   //to be called when user creates password for first time
