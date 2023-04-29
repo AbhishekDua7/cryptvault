@@ -10,6 +10,7 @@ var justUploaded = [];
 var justDownloaded = [];
 var userPassword = 'dbsec';
 const rounds = 16;
+let userFileModified = false;
 const saltkeyFilePath = './Documents/saltkey.bin';
 const saltkeyFileName = 'saltkey.bin';
 const ivkeyFilePath = './Documents/iv.bin';
@@ -161,7 +162,16 @@ class Config1 {
     if (fileId != '') {
         console.log('found file id for '+ fileName + ' = ' +fileId);
         drive.files.update(
-            {fileId: fileId, resource: fileMetadata, media: media, fields: 'id'})
+            {fileId: fileId, resource: fileMetadata, media: media, fields: 'id,appProperties,name, modifiedTime, modifiedByMeTime'},(err, file) => {
+              if (err) {
+                console.error('Error updating file:', err);
+                return;
+              }
+              console.log(`File modified time: ${file.modifiedTime}`);
+              console.log(`File modified by me time: ${file.modifiedByMeTime}`);
+              self.downloadfile(drive,fileName,isPrivate, fileId); 
+            })
+            
     } else {
         if (isPrivate == true) {
             fileMetadata = {
@@ -172,7 +182,7 @@ class Config1 {
         } 
         drive.files.create(
         {
-            resource: fileMetadata, media: media, fields: 'id'},
+            resource: fileMetadata, media: media, fields: 'id,appProperties,name, modifiedTime, modifiedByMeTime'},
             function(err, file) {
               if (err) {
                 // Handle error
@@ -181,6 +191,8 @@ class Config1 {
                 ivMap.set(fileName, iv);
                 console.log(
                     'Uploaded file \"' + fileName + '\", File Id: ', file.data.id);
+                console.log(`File modified time: ${file.modifiedTime}`);
+                console.log(`File modified by me time: ${file.modifiedByMeTime}`);    
                 self.downloadfile(drive,fileName,isPrivate, file.data.id);    
 
               }
@@ -793,6 +805,20 @@ class Config1 {
           console.error(`Error downloading file: ${err}`);
           return;
         }
+        let modifiedByMeTs = res.modifiedByMeTime;
+        let modifiedTs = res.modifiedTime;
+        console.log("Ts for filename="+fileName);
+        console.log('Modifiedbyme='+ modifiedByMeTs);
+        console.log('ModifiedTime=' + modifiedTs);
+        if (dataFileName == fileName) {
+          if (modifiedByMeTs == modifiedTs) {
+            userFileModified = false;
+          } else {
+            userFileModified = true;
+          }
+          
+        }
+
         res.data.pipe(destFileStream);
         destFileStream.on('finish', () => {
           console.log(fileName +' - File downloaded successfully data=' + res.data);
@@ -839,8 +865,15 @@ class Config1 {
       //let values = ['','','','',''];
       //this.encryptAndStoreUserData(acceptableTagList, values,data[1]);
     } else {
+      if (userFileModified == true) {
+        var prop = {
+          "error":"Modified File"
+        };
+        callback(prop);
+      } else {
       const ans = this.decryptFileDataAndRead(data[0],data[1]);
       callback(ans);
+      }
     }
   }
 
@@ -851,8 +884,14 @@ class Config1 {
     console.log('Password from localserver=' + data[2]);
     console.log('Values from localserver=' + data[1]);
     console.log('Keys from localserver=' + data[0]);
-
-    const prop = this.decryptFileDataAndRead(acceptableTagList,data[2]);
+    let prop={};
+    if (this.checkFileSync(dataFilePath)) {
+       prop = this.decryptFileDataAndRead(acceptableTagList,data[2]);
+    } else {
+      for(var i=0;i<acceptableTagList.length;i++) {
+        prop[acceptableTagList[i]] ='';
+      }
+    }
     for(var i=0;i<data[0].length;i++) {
       prop[data[0][i]] = data[1][i];
     }
