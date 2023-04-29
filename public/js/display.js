@@ -3,6 +3,14 @@ const secrets = require('secrets.js-grempe');
 //const config= require('../../config/config1');
 var ipc = require('electron').ipcRenderer;
 var file = [];
+var userValidPwd = '';
+var tagMap = {
+  'tag1':'SSN',
+  'tag2':'Account Number',
+  'tag3':'Bank Password',
+  'tag4':'Phone Pin',
+  'tag5':'Other'
+}
 console.log('Running Diplay.js');
 const fs = require('fs');
 function printFiles(folder)
@@ -237,6 +245,7 @@ function closeModal(modalId) {
  function checkPassword(tag) {
   var password = document.getElementById("password").value;
   console.log('Sending ' + password);
+  this.userValidPwd = password;
   ipc.send('VerifyPassword', [password, tag]);
  // const response = await ipc.send('VerifyPassword', password);
  // console.log(response);
@@ -261,6 +270,7 @@ function checkPasswordValue(pass, tag) {
   } else {
     var errorLabel = document.getElementById("errorLabel");
     errorLabel.style.display = "block";
+    this.userValidPwd = '';
   }
 }
 
@@ -277,12 +287,19 @@ function openTextFields() {
     checkboxData.set("tag3", document.getElementById("tag3").checked);
     checkboxData.set("tag4", document.getElementById("tag4").checked);
     checkboxData.set("tag5", document.getElementById("tag5").checked);
-  
+    var keys = Object.keys(checkboxData);
+    
+    for(var i=0;i<keys.length;i++) {
+
+    }
     console.log(checkboxData);
   
     closeModal("checkboxModal");
     openModal("textFieldModal");
   }
+
+
+
 
 // window.onclick = function(event) {
 //   var passwordModal = document.getElementById("passwordModal");
@@ -302,7 +319,7 @@ function getInfo(info){
     alert(`Download ID: ${info}`);
 }
 
-ipc.once('VerifyPasswordReply', function(event, response){
+ipc.on('VerifyPasswordReply', function(event, response){
     checkPasswordValue(response[0], response[1]);
 });
 

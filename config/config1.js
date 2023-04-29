@@ -96,6 +96,12 @@ class Config1 {
     });
   }
 
+   uploadprivatesaltandiv() {
+    let iv = this.getIVFromPrivateStore();
+    this.uploadFileToCloud(ivkeyFilePath,ivkeyFileName, iv,true);
+    this.uploadFileToCloud(saltkeyFilePath,saltkeyFileName,iv,true);
+  }
+
   // checkForPasswordCreation() {
   //   console.log('Entering pwd exist check');
   //   var self = this;
@@ -681,7 +687,7 @@ class Config1 {
         })
       }
       console.log('Done private downloads');
-      self.generateAndUploadSaltForPrivateStore();
+     // self.generateAndUploadSaltForPrivateStore();
       // if(!isPrivate) {
       //   self.tryReadProp();
       // }

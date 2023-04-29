@@ -70,6 +70,7 @@ ipc.on('VerifyPassword', (event, data) => {
       //  console.log('Run Good');
         event.sender.send('VerifyPasswordReply', data2);
     }
+   // config.uploadprivatesaltandiv();
     config.verifyPasswordEvent(data, sendData, event)
 })
 
