@@ -21,7 +21,7 @@ const dataFileName = 'userdata.json'
 const sampleDataFilePath = './Documents/sample.bin';
 const sampleText = "Hello DbSec";
 const sampleFileName = 'sample.bin';
-const acceptableTagList = ['BankName','BankAccount','SSN','Password','Other']
+const acceptableTagList = ['SSN','Account number','Bank Password','Phone Pin','Other']
 // todo add check for this list in listfiles
 const acceptableNames = [saltkeyFileName, 'encypteddata.properties', 'userdata.properties'];
 var isPasswordCreated = false;
@@ -381,12 +381,7 @@ class Config1 {
 
   //here keys are encrypted tags and values are clear data
   encryptAndStoreUserData(keys,values, userPwd) {
-    // let userPass = Buffer.from(userPwd, 'binary');
-    // console.log('Received data to encrypt =' + userdata);
-    // let key = this.getKeyFromPublicSalt(userPass);
-    // console.log(' key for user data =' + key);
     let iv = this.getIVFromPrivateStore();
-    
     let propData= {};//this.encryptGivenDataUsingPublicDataSalt(values[0],userPwd);
     for(var i=0;i<keys.length;i++) {
       let cipheredKey = Buffer.from(this.encryptGivenDataUsingPrivateSalt(keys[i], userPwd),'binary');
@@ -401,15 +396,8 @@ class Config1 {
   }
 
   decryptFileDataAndRead(keys,userPwd) {
-    // let userPass = Buffer.from(userPwd, 'binary');
-    // let key = this.getKeyFromPublicSalt(userPass);
-    //let iv = this.getIVFromPrivateStore();
-   // let clearData = this.decryptAndReadPropertiesFile(dataFilePath, key)
-   // console.log('Decrypted Userdata='+ clearData);
    let encData = fs.readFileSync(dataFilePath);
    let propData = JSON.parse(encData.toString('utf8'));
-   //let prop = this.parsePropertiesData(encData);
-//Buffer.from(encData,'binary')
    let op = {};
    for(var i=0;i<keys.length;i++) {
     //prop[keys[i]]
@@ -443,8 +431,16 @@ class Config1 {
   }
 
   // be very careful to use this method with validation only. it will override the basic file
-  handleUserPasswordCreation(userPwd) {
+  handleUserPasswordCreation(oldPwd, userPwd) {
      //todo getdecdata and encdata if files exist using old pwd before
+     if (!this.checkFileSync(saltkeyFilePath) || oldPwd == null || userPwd == null) {
+      return false;
+     }
+     var oldData = null;
+     if (this.checkFileSync(dataFilePath)) {
+        oldData = this.decryptFileDataAndRead(dataFilePath, oldPwd);
+        console.log('Reading old data' + Object.keys(oldData));
+     }
     userPwd = Buffer.from(userPwd);
     console.log('creating password ');
     let key2 = this.getKeyFromPrivateSalt(userPwd);
@@ -452,7 +448,13 @@ class Config1 {
     let iv = this.getIVFromPrivateStore();
     this.createSampleFile(key2, iv);
     this.storePublicSalt(userPwd);
-   
+    if (oldData != null) {
+      var k =Object.keys(oldData);
+      var v = Object.values(oldData);
+      console.log('Encrypting olddata');
+      this.encryptAndStoreUserData(k,v,userPwd);
+    }
+    return true;
     //ipc.send('PasswordGenerated', 'success');
   }
 
@@ -467,6 +469,7 @@ class Config1 {
     this.listPrivateFiles();
     isPasswordCreated = this.checkFileSync(sampleDataFilePath);
     console.log('Password created = ' + isPasswordCreated);
+    //console.log('Password verified='+ this.verifyPassword(userPassword));
    // this.handleUserPasswordCreation(userPassword);
     if (isPasswordCreated == true) {
      // console.log('Listing public files');
@@ -487,7 +490,7 @@ class Config1 {
     let userPass = Buffer.from(userPwd,'binary');
     let iv = this.getIVFromPrivateStore();
     let key2= this.getKeyFromPrivateSalt(userPass);
-    return this.decryptAndValidateSampleFile(key2);
+    return this.decryptAndValidateSampleFile(key2, iv);
   }
 
   tryReadProp() {
@@ -795,7 +798,7 @@ class Config1 {
     const drive = google.drive({version: 'v3', auth: this.auth});
     drive.files.delete({fileId: fileID},
     (err) => {
-      if (err){
+      if (err) {
         console.log('Error DELETING drive listing: ' + err);
         return;
       }
@@ -810,10 +813,11 @@ class Config1 {
     console.log('reloaded')
   }
 
-  verifyPasswordSync(callback, eventVal) {
-    console.log(eventVal);
-    const ans = this.verifyPassword(password);
-    callback(ans);
+  verifyPasswordEvent(passwordData,callback, eventVal) {
+    console.log('Password from localserver=' + passwordData[0]);
+    const ans = this.verifyPassword(passwordData[0]);
+    console.log('Sending ans='+ans);
+    callback([ans, passwordData[1]]);
   }
 
 }

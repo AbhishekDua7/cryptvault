@@ -63,6 +63,16 @@ ipc.on('invokeAction', (event, data) => {
     //config.listPublicFiles(sendData, event);
 });
 
+ipc.on('VerifyPassword', (event, data) => {
+   // console.log('Recvd='+data);
+    function sendData(data2) {
+       console.log('VerifyPasswordReply');
+      //  console.log('Run Good');
+        event.sender.send('VerifyPasswordReply', data2);
+    }
+    config.verifyPasswordEvent(data, sendData, event)
+})
+
 ipc.on('driveAction', (event, data) => {
     if(data[0].toUpperCase == 'DELETE'.toUpperCase)
         config.deleteFile(data[1], () => { config.windows.win.reload();});

@@ -1,4 +1,4 @@
-const config = require('../../config/config');
+const config = require('../../config/config1');
 const {google} = require('googleapis');
 
 function newAuthRequest() {

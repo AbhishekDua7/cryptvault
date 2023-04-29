@@ -36,7 +36,7 @@
         </table>
 
         <div class="container-fluid">
-            <div class="row">
+            <!-- <div class="row">
                 <div class="col-md">
                     <form id="propertiesForm">
                         <div class="form-group">
@@ -55,12 +55,12 @@
                 <div class="col-md">
                     <textarea class="form-control" id="propertiesTextArea" rows="10"></textarea>
                 </div>
-            </div>
+            </div> -->
             <div class="row">
                 <div class="col-md">
-                    <button type="button" class="btn btn-primary" onclick="createProperties()">Create Properties File</button>
-                    <button type="button" class="btn btn-primary" onclick="updateProperties()">Update Properties</button>
-                    <button class="btn btn-primary" onclick="openModal('passwordModal')">Click me</button>
+                    <!-- <button type="button" class="btn btn-primary" onclick="createProperties()">Create Properties File</button> -->
+                    <button type="button" class="btn btn-primary" onclick="">Change Password</button>
+                    <button class="btn btn-primary" onclick="openModal('passwordModal')">Enter Data</button>
                     <button type="button" class="btn btn-primary" onclick="showPasswordModal()">Share</button>
                     <button type="button" class="btn btn-primary" onclick="openShamirKeysInputModal()">Decrypt</button>
 
@@ -72,7 +72,8 @@
               <span class="close" onclick="closeModal('passwordModal')">&times;</span>
               <p>Enter password:</p>
               <input type="password" id="password">
-              <button id="shareBtn" class="btn btn-primary" onclick="checkPassword()">OK</button>
+              <button id="shareBtn" class="btn btn-primary" onclick="checkPassword('DataEntryFlow1')">OK</button>
+              <label id="errorLabel" style="color:red;display: none;">Incorrect Password</label>
             </div>
           </div>
       
@@ -83,8 +84,8 @@
               <input type="checkbox" id="tag1">SSN<br>
               <input type="checkbox" id="tag2">Account number<br>
               <input type="checkbox" id="tag3">Bank Password<br>
-              <input type="checkbox" id="tag4">Email Password<br>
-              <input type="checkbox" id="tag5">Phone pin<br>
+              <input type="checkbox" id="tag4">Phone Pin<br>
+              <input type="checkbox" id="tag5">Other<br>
               <button class="btn btn-primary" onclick="openTextFields()">OK</button>
             </div>
         </div>

@@ -1,5 +1,6 @@
 
 const secrets = require('secrets.js-grempe');
+//const config= require('../../config/config1');
 var ipc = require('electron').ipcRenderer;
 var file = [];
 console.log('Running Diplay.js');
@@ -227,14 +228,45 @@ function openModal(modalId) {
 
 function closeModal(modalId) {
   var modal = document.getElementById(modalId);
+  if (modalId == "passwordModal") {
+    document.getElementById("password").value='';
+    document.getElementById("errorLabel").style.display="none";
+  }
   modal.style.display = "none";
 }
-
-function checkPassword() {
+ function checkPassword(tag) {
   var password = document.getElementById("password").value;
-  if (password === "myPassword") {
-    closeModal("passwordModal");
-    openModal("checkboxModal");
+  console.log('Sending ' + password);
+  ipc.send('VerifyPassword', [password, tag]);
+ // const response = await ipc.send('VerifyPassword', password);
+ // console.log(response);
+  // var passwordValid = false;  //confighelper.verifyPassword(password);
+  // if (passwordValid) {
+  //   closeModal("passwordModal");
+  //   openModal("checkboxModal");
+  // } else {
+  //   var errorLabel = document.getElementById("errorLabel");
+  //   errorLabel.style.display = "block";
+  // }
+}
+
+function loadcheckboxModal() {
+  closeModal("passwordModal");
+  openModal("checkboxModal");
+}
+
+function checkPasswordValue(pass, tag) {
+  if (pass) {
+    afterSuccessfulPwdVerification(tag);
+  } else {
+    var errorLabel = document.getElementById("errorLabel");
+    errorLabel.style.display = "block";
+  }
+}
+
+function afterSuccessfulPwdVerification(tag) {
+  if (tag == "DataEntryFlow1") {
+    loadcheckboxModal();
   }
 }
 
@@ -270,9 +302,14 @@ function getInfo(info){
     alert(`Download ID: ${info}`);
 }
 
+ipc.once('VerifyPasswordReply', function(event, response){
+    checkPasswordValue(response[0], response[1]);
+});
+
 ipc.once('actionReply', function(event, response){
         printFiles(response);
 });
+
 
 ipc.send('invokeAction', 'someData');
 
