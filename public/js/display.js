@@ -3,7 +3,9 @@ const secrets = require('secrets.js-grempe');
 //const config= require('../../config/config1');
 var ipc = require('electron').ipcRenderer;
 var file = [];
+var requestedKeys = [];
 var userValidPwd = '';
+var userDecryptedData = {};
 var tagMap = {
   'tag1':'SSN',
   'tag2':'Account Number',
@@ -11,6 +13,25 @@ var tagMap = {
   'tag4':'Phone Pin',
   'tag5':'Other'
 }
+
+const { dialog } = require('electron')
+
+// var textMap = {
+//   'text1':'SSN',
+//   'text2':'Account Number',
+//   'text3':'Bank Password',
+//   'text4':'Phone Pin',
+//   'text5':'Other'
+// }
+
+var revtextMap = {
+  'SSN':'text1',
+  'Account Number':'text2',
+  'Bank Password':'text3',
+  'Phone Pin':'text4',
+  'Other':'text5'
+}
+
 console.log('Running Diplay.js');
 const fs = require('fs');
 function printFiles(folder)
@@ -63,176 +84,45 @@ function printFiles(folder)
     }
 }
 
-let tags = [];
-let values = [];
+// let tags = [];
+// let values = [];
 
-function addProperty() {
-    const tagInput = document.getElementById("tagInput").value;
-    const valueInput = document.getElementById("valueInput").value;
-
-    tags.push(tagInput);
-    values.push(valueInput);
-
-    const propertiesTextArea = document.getElementById("propertiesTextArea");
-    propertiesTextArea.value += `${tagInput}=${valueInput}\n`;
-
-    document.getElementById("tagInput").value = "";
-    document.getElementById("valueInput").value = "";
-}
-
-function createProperties() {
-    console.log("tags: "+ tags);
-    console.log("Values: "+ values);
-    createPropertiesFile(tags, values);
-}
-
-
-function createPropertiesFile(tags, values) {
-    // implementation here
-    // create properties object from array lists
-const properties = {};
-for (let i = 0; i < tags.length; i++) {
-  properties[tags[i]] = values[i];
-}
-
-// write properties object to file
-fs.writeFile('data.properties', formatProperties(properties), function (err) {
-  if (err) throw err;
-  console.log('Properties file created!');
-});
-
-// function to format properties object into string
-
-}
-
-// function createPropertiesFile() {
-//     let tags = [];
-//     let values = [];
-  
-//     // check if data.properties file already exists
-//     if (fs.existsSync('data.properties')) {
-//       // read current properties from file
-//       const currentProperties = fs.readFileSync('data.properties', 'utf8');
-    
-//       // parse current properties into object
-//       const parsedProperties = parseProperties(currentProperties);
-  
-//       // populate tags and values arrays with existing properties
-//       for (let key in parsedProperties) {
-//         tags.push(key);
-//         values.push(parsedProperties[key]);
-//       }
-  
-//       // update text area with existing properties
-//       const propertiesTextArea = document.getElementById("propertiesTextArea");
-//       propertiesTextArea.value = formatProperties(parsedProperties);
-//     }
-  
-//     // add new properties from input fields
+// function addProperty() {
 //     const tagInput = document.getElementById("tagInput").value;
 //     const valueInput = document.getElementById("valueInput").value;
-//     if (tagInput && valueInput) {
-//       tags.push(tagInput);
-//       values.push(valueInput);
-//     }
-  
-//     // create properties object from arrays
-//     const properties = {};
-//     for (let i = 0; i < tags.length; i++) {
-//       properties[tags[i]] = values[i];
-//     }
-  
-//     // write properties object to file
-//     fs.writeFile('data.properties', formatProperties(properties), function (err) {
-//       if (err) throw err;
-//       console.log('Properties file created or updated!');
-//     });
-  
-//     // clear input fields
+
+//     tags.push(tagInput);
+//     values.push(valueInput);
+
+//     const propertiesTextArea = document.getElementById("propertiesTextArea");
+//     propertiesTextArea.value += `${tagInput}=${valueInput}\n`;
+
 //     document.getElementById("tagInput").value = "";
 //     document.getElementById("valueInput").value = "";
-//   }
-  
+// }
 
-function formatProperties(properties) {
-    let output = '';
-    for (let key in properties) {
-      output += key + '=' + properties[key] + '\n';
-    }
-    return output;
-  }
 
-function updateProperties() {
-    const propertiesTextArea = document.getElementById("propertiesTextArea");
-    const lines = propertiesTextArea.value.split("\n");
-
-    // extract tags and values from lines
-    const tags = [];
-    const values = [];
-    for (let i = 0; i < lines.length; i++) {
-        const parts = lines[i].split("=");
-        if (parts.length >= 2) {
-            const tag = parts[0].trim();
-            const value = parts[1].trim();
-            tags.push(tag);
-            values.push(value);
-        }
-    }
-
-    updateProperty(tags, values);
-}
-
-function updateProperty(tags, values) {
-    // read current properties from file
-    const currentProperties = fs.readFileSync('data.properties', 'utf8');
-  
-    // parse current properties into object
-    const parsedProperties = parseProperties(currentProperties);
-  
-    // update properties in object with updated values
-    for (let i = 0; i < tags.length; i++) {
-        if (parsedProperties.hasOwnProperty(tags[i])) {
-            parsedProperties[tags[i]] = values[i];
-        }
-    }
-  
-    // write updated properties object to file
-    fs.writeFileSync('data.properties', formatProperties(parsedProperties));
-  
-    console.log('Properties file updated!');
-  
-    // function to format properties object into string
-    function formatProperties(properties) {
-        let output = '';
-        for (let key in properties) {
-            output += key + '=' + properties[key] + '\n';
-        }
-        return output;
-    }
-}
-
-  
-// function to parse properties string into object
-function parseProperties(propertiesString) {
-  var properties = {};
-  const lines = propertiesString.split('\n');
-  for (let i = 0; i < lines.length; i++) {
-    const parts = lines[i].split('=');
-    if (parts.length >= 2) {
-      const key = parts[0].trim();
-      const value = parts[1].trim();
-      properties[key] = value;
-    }
-  }
-  return properties;
-}
-
-var checkboxData = new Map();
+//var checkboxData = new Map();
 
 function openModal(modalId) {
   var modal = document.getElementById(modalId);
   modal.style.display = "block";
+  if (modalId == "textFieldModal") {
+    updateModalUI();
+  }
 }
+
+function updateModalUI() {
+  var userData = new Map();
+  for(var i=0;i<requestedKeys.length;i++) {
+    var textinput = document.getElementById(revtextMap[requestedKeys[i]]);
+    textinput.disabled = false;
+    if (userDecryptedData.hasOwnProperty(requestedKeys[i])) {
+        textinput.value = userDecryptedData[requestedKeys[i]];
+    }
+  }
+}
+
 
 function closeModal(modalId) {
   var modal = document.getElementById(modalId);
@@ -240,9 +130,46 @@ function closeModal(modalId) {
     document.getElementById("password").value='';
     document.getElementById("errorLabel").style.display="none";
   }
+  if (modalId == "textFieldModal") {
+    handleTextFieldModalClose();
+  } 
   modal.style.display = "none";
+  
 }
+
+function handleTextFieldModalClose() {
+  let k = [];
+  let v = [];
+  for(var i=0;i<requestedKeys.length;i++) {
+    k.push(requestedKeys[i]);
+    var textinput = document.getElementById(revtextMap[requestedKeys[i]]);
+    v.push(textinput.value);
+  }
+  
+  ipc.send('SaveUserDataForKeysEvent', [k,v, userValidPwd]);
+}
+
+function handleTextFieldModalCloseResponse(resp) {
+    if (resp == true) {
+      dialog.showMessageBox(null, {
+        type: 'info',
+        message: 'Success',
+        buttons: ['OK']
+      })
+    } else {
+      dialog.showMessageBox(null, {
+        type: 'info',
+        message: 'Failed to store',
+        buttons: ['OK']
+      })
+    }
+    userDecryptedData = {};
+}
+
  function checkPassword(tag) {
+  requestedKeys =[];
+  userValidPwd = '';
+  userDecryptedData = {};
   var password = document.getElementById("password").value;
   console.log('Sending ' + password);
   this.userValidPwd = password;
@@ -287,19 +214,34 @@ function openTextFields() {
     checkboxData.set("tag3", document.getElementById("tag3").checked);
     checkboxData.set("tag4", document.getElementById("tag4").checked);
     checkboxData.set("tag5", document.getElementById("tag5").checked);
-    var keys = Object.keys(checkboxData);
-    
+    var keys = Array.from(checkboxData.keys());
+    console.log('Existing keys='+keys[0] + 'len=' + keys.length);
     for(var i=0;i<keys.length;i++) {
-
+      if (checkboxData.get(keys[i]) == true) {
+        this.requestedKeys.push(this.tagMap[keys[i]]);
+      }
     }
     console.log(checkboxData);
-  
+    console.log('\n '+ requestedKeys);
+    ipc.send('GetUserDataForKeysEvent', [requestedKeys, userValidPwd]);
+    
+  }
+
+  function showUserData(data) {
+    console.log(data);
+    userDecryptedData = data;
     closeModal("checkboxModal");
     openModal("textFieldModal");
   }
 
+  ipc.on('GetUserDataForKeysReply', function(event, response){
+    showUserData(response);
+});
 
-
+ipc.on('SaveUserDataForKeysReply', function(event, response){
+  console.log("Encrypted and saved="+ response);
+  handleTextFieldModalCloseResponse(response);
+});
 
 // window.onclick = function(event) {
 //   var passwordModal = document.getElementById("passwordModal");

@@ -21,7 +21,7 @@ const dataFileName = 'userdata.json'
 const sampleDataFilePath = './Documents/sample.bin';
 const sampleText = "Hello DbSec";
 const sampleFileName = 'sample.bin';
-const acceptableTagList = ['SSN','Account number','Bank Password','Phone Pin','Other']
+const acceptableTagList = ['SSN','Account Number','Bank Password','Phone Pin','Other']
 // todo add check for this list in listfiles
 const acceptableNames = [saltkeyFileName, 'encypteddata.properties', 'userdata.properties'];
 var isPasswordCreated = false;
@@ -385,7 +385,7 @@ class Config1 {
     return clearData;
   }
 
-  //here keys are encrypted tags and values are clear data
+  //here keys are tags and values are clear data
   encryptAndStoreUserData(keys,values, userPwd) {
     let iv = this.getIVFromPrivateStore();
     let propData= {};//this.encryptGivenDataUsingPublicDataSalt(values[0],userPwd);
@@ -399,6 +399,7 @@ class Config1 {
     let binprop = Buffer.from(JSON.stringify(propData),'utf8'); 
     console.log('prop user data = '+ binprop); 
     this.createOrUpdateFile(dataFilePath,dataFileName,iv,binprop, false);
+    return true;
   }
 
   decryptFileDataAndRead(keys,userPwd) {
@@ -825,6 +826,46 @@ class Config1 {
     console.log('Sending ans='+ans);
     callback([ans, passwordData[1]]);
   }
+
+  decryptedDataForKeysEvent(data,callback,eventVal) {
+    console.log('Password from localserver=' + data[1]);
+    console.log('Keys from localserver=' + data[0]);
+    if (!this.checkFileSync(dataFilePath)) {
+      var prop = {};
+      for(var i=0;i<data[0].length;i++) {
+        prop[data[0][i]] = '';
+      }
+      callback(prop);
+      //let values = ['','','','',''];
+      //this.encryptAndStoreUserData(acceptableTagList, values,data[1]);
+    } else {
+      const ans = this.decryptFileDataAndRead(data[0],data[1]);
+      callback(ans);
+    }
+  }
+
+  encryptDataForKeysEvent(data,callback,eventVal) {
+    if (data[2] == '') {
+      return callback(false);
+    }
+    console.log('Password from localserver=' + data[2]);
+    console.log('Values from localserver=' + data[1]);
+    console.log('Keys from localserver=' + data[0]);
+
+    const prop = this.decryptFileDataAndRead(acceptableTagList,data[2]);
+    for(var i=0;i<data[0].length;i++) {
+      prop[data[0][i]] = data[1][i];
+    }
+    var k = Object.keys(prop);
+    var v = Object.values(prop);
+    // if (!this.checkFileSync(dataFilePath)) {
+    //   let values = ['','','','',''];
+    //   this.encryptAndStoreUserData(acceptableTagList, values,data[1]);
+    // }
+    const ans = this.encryptAndStoreUserData(k,v,data[2]);
+    callback(ans);
+  }
+  
 
 }
 

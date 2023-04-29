@@ -74,6 +74,27 @@ ipc.on('VerifyPassword', (event, data) => {
     config.verifyPasswordEvent(data, sendData, event)
 })
 
+ipc.on('GetUserDataForKeysEvent', (event, data) => {
+    // console.log('Recvd='+data);
+     function sendData(data2) {
+        console.log('GetUserDataForKeysEvent');
+       //  console.log('Run Good');
+         event.sender.send('GetUserDataForKeysReply', data2);
+     }
+    // config.uploadprivatesaltandiv();
+     config.decryptedDataForKeysEvent(data, sendData, event)
+ })
+
+ ipc.on('SaveUserDataForKeysEvent', (event, data) => {
+    // console.log('Recvd='+data);
+     function sendData(data2) {
+        console.log('SaveUserDataForKeysEvent');
+       //  console.log('Run Good');
+         event.sender.send('SaveUserDataForKeysReply', data2);
+     }
+     config.encryptDataForKeysEvent(data, sendData, event)
+ })
+
 ipc.on('driveAction', (event, data) => {
     if(data[0].toUpperCase == 'DELETE'.toUpperCase)
         config.deleteFile(data[1], () => { config.windows.win.reload();});
