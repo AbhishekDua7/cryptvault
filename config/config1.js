@@ -1,4 +1,4 @@
-var ipc = require('electron').ipcRenderer;
+var ipcMain = require('electron').ipcMain;
 const {google} = require('googleapis');
 const propertiesParser = require('properties-parser');
 const fs = require('fs');
@@ -21,6 +21,7 @@ const dataFileName = 'userdata.json'
 const sampleDataFilePath = './Documents/sample.bin';
 const sampleText = "Hello DbSec";
 const sampleFileName = 'sample.bin';
+const acceptableTagList = ['BankName','BankAccount','SSN','Password','Other']
 // todo add check for this list in listfiles
 const acceptableNames = [saltkeyFileName, 'encypteddata.properties', 'userdata.properties'];
 var isPasswordCreated = false;
@@ -475,7 +476,7 @@ class Config1 {
       // }
       // this.tryReadProp();
     // this.encryptAndStoreUserData(['Name'],['Abhishek'], userPassword);
-      this.decryptFileDataAndRead(['Name'],userPassword);
+    //  this.decryptFileDataAndRead(['Name'],userPassword);
     } else {
       
      // this.handleUserPasswordCreation(userPassword);
@@ -485,7 +486,7 @@ class Config1 {
   verifyPassword(userPwd) {
     let userPass = Buffer.from(userPwd,'binary');
     let iv = this.getIVFromPrivateStore();
-    let key2= this.getKeyFromPrivateSalt(Buffer.from(userPassword));
+    let key2= this.getKeyFromPrivateSalt(userPass);
     return this.decryptAndValidateSampleFile(key2);
   }
 
@@ -809,6 +810,19 @@ class Config1 {
     console.log('reloaded')
   }
 
+  verifyPasswordSync(callback, eventVal) {
+    console.log(eventVal);
+    const ans = this.verifyPassword(password);
+    callback(ans);
+  }
+
 }
+
+// ipcMain.handle('VerifyPassword', async (event, arg) => {
+//   console.log(`${arg} from main process`);
+//   return this.verifyPassword(arg);
+//   //return `${arg} from main process`;
+// });
+
 
 module.exports = new Config1();
