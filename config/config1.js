@@ -306,6 +306,7 @@ class Config1 {
   }
 
   decryptAndReadPropertiesFile(filePath, key) {
+    console.log("key inside config.decryptAndReadPropertiesFile "+ Buffer.from(key, 'binary'));
     if (this.checkFileSync(filePath)) {
       try {
         const encryptedData = fs.readFileSync(filePath);

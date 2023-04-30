@@ -97,6 +97,24 @@ ipc.on('GetUserDataForKeysEvent', (event, data) => {
      config.encryptDataForKeysEvent(data, sendData, event)
  })
 
+ ipc.on('getKey', (event, data) => {
+    console.log("Inside get key");
+    console.log(data);
+    key  = config.getKeyFromPublicSalt(data);
+    console.log("Original key = " + key)
+    console.log('length of key' + key.length);
+    event.sender.send('getKeyReply', key);
+ })
+
+ipc.on('decrypt', (event, data) => {
+    console.log("data " + data + " " + data.length);
+    console.log(Buffer.from(data, 'binary'));
+    decryptedData = config.decryptFileDataUsingKey(data);
+    console.log('decdata' +" SSN : "+ decryptedData['SSN'] + ", Acc No. : " + decryptedData['Account Number']);
+    event.sender.send('decryptReply', decryptedData);
+});
+
+
 ipc.on('driveAction', (event, data) => {
     if(data[0].toUpperCase == 'DELETE'.toUpperCase)
         config.deleteFile(data[1], () => { config.windows.win.reload();});

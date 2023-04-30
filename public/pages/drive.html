@@ -94,11 +94,11 @@
               <div class="modal-content-pass">
                 <span class="close" onclick="closeModal('textFieldModal')">&times;</span>
                 <p>Enter text:</p>
-                SSN: <input type="text" id="text1" disabled><br>
-                Account Number: <input type="text" id="text2" disabled><br>
-                Bank Password: <input type="text" id="text3" disabled><br>
-                Phone Pin: <input type="text" id="text4" disabled><br>
-                Other: <input type="text" id="text5" disabled><br>
+                SSN: <input type="text" id="text1"><br>
+                Account Number: <input type="text" id="text2"><br>
+                Bank Password: <input type="text" id="text3"><br>
+                Phone Pin: <input type="text" id="text4"><br>
+                Other: <input type="text" id="text5"><br>
                 <label id="errorLabelText" style="color: red;display: none;">File Modified Extenally</label><br>
                 <button class="btn btn-primary" onclick="handleTextFieldModalClose()">OK</button>
               </div>
@@ -106,11 +106,13 @@
         </div>
 
         <div id="shamirPasswordModal" class="modal">
-            <div class="modal-content">
+            <div class="modal-content-pass">
               <span class="close" onclick="closePasswordModal()">&times;</span>
               <p>Enter password:</p>
-              <input type="password" id="shamirPassword">
-              <button class="btn btn-primary" onclick="validatePasswordAndGenerateShamirKeys()">OK</button>
+              <input type="password" id="spassword">
+              <button class="btn btn-primary" onclick="checkShamirPassword('shamirKey')">OK</button>
+              <label id="errorShamirPwdLabel" style="color:red;display: none;">Incorrect Password</label>
+              <!-- <button class="btn btn-primary" onclick="validatePasswordAndGenerateShamirKeys('shamirKey')">OK</button> -->
             </div>
         </div>
 
@@ -118,15 +120,15 @@
             <div class="modal-content">
               <span class="close" onclick="closeShamirKeysModal()">&times;</span>
               <p>Shamir Keys:</p>
-              <div id="shamirKeyDisplay1"></div>
-              <div id="shamirKeyDisplay2"></div>
-              <div id="shamirKeyDisplay3"></div>
+              <div id="shamirKeyDisplay1" class="key-display"></div>
+              <div id="shamirKeyDisplay2" class="key-display"></div>
+              <div id="shamirKeyDisplay3" ></div>
             </div>
         </div> 
         
         <div id="shamirKeysInputModal" class="modal">
-            <div class="modal-content">
-              <span class="close" onclick="closeModal('shamirKeysInputModal')">&times;</span>
+            <div class="modal-content-pass">
+              <span class="close" onclick="closeShamirKeysInputModal()">&times;</span>
               <p>Enter at least two Shamir keys:</p>
               Key 1: <input type="text" id="inputShamirKey1"><br>
               Key 2: <input type="text" id="inputShamirKey2"><br>
@@ -134,7 +136,17 @@
               <button class="btn btn-primary" onclick="decryptDataUsingShamirKeys()">OK</button>
             </div>
         </div>
-          
-          
+
+        <div id="decryptedShamirModal" class="modal">
+            <div class="modal-content-pass">
+                <span class="close" onclick="closeShamirDecryptModal()">&times;</span>
+                <p>SSN: <span id="label1"></span></p>
+                <p>Account Number: <span id="label2"></span></p>
+                <p>Bank Password: <span id="label3"></span></p>
+                <p>Phone Pin: <span id="label4"></span></p>
+                <p>Other: <span id="label5"></span></p>
+            </div>
+        </div>        
+
     </body>
 </html>

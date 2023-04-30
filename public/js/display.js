@@ -34,6 +34,7 @@ var revtextMap = {
 
 console.log('Running Diplay.js');
 const fs = require('fs');
+const { error } = require('console');
 function printFiles(folder)
 {
     var i
@@ -182,9 +183,16 @@ function handleTextFieldModalCloseResponse(resp) {
   userValidPwd = '';
   userDecryptedData = {};
   var password = document.getElementById("password").value;
+  console.log("inside checkPassword" + password);
   console.log('Sending ' + password);
   this.userValidPwd = password;
   ipc.send('VerifyPassword', [password, tag]);
+}
+
+function checkShamirPassword(tag) {
+  var password = document.getElementById("spassword").value;
+  console.log('Sending' + password)
+  ipc.send('VerifyPassword', [password,tag]);
 }
 
 function loadcheckboxModal() {
@@ -196,8 +204,15 @@ function checkPasswordValue(pass, tag) {
   if (pass) {
     afterSuccessfulPwdVerification(tag);
   } else {
-    var errorLabel = document.getElementById("errorLabel");
-    errorLabel.style.display = "block";
+    if(tag == "DataEntryFlow1"){
+      var errorLabel = document.getElementById("errorLabel");
+      errorLabel.style.display = "block";
+    }
+
+    else if(tag == "shamirKey") {
+      document.getElementById("errorShamirPwdLabel").style.display = "block";
+    }
+   
     this.userValidPwd = '';
   }
 }
@@ -205,6 +220,10 @@ function checkPasswordValue(pass, tag) {
 function afterSuccessfulPwdVerification(tag) {
   if (tag == "DataEntryFlow1") {
     loadcheckboxModal();
+  }
+  else if (tag == "shamirKey"){
+    console.log("yayyy");
+    validatePasswordAndGenerateShamirKeys();
   }
 }
 
@@ -255,6 +274,25 @@ ipc.on('VerifyPasswordReply', function(event, response){
     checkPasswordValue(response[0], response[1]);
 });
 
+ipc.on('getKeyReply', function(event, response){
+  console.log("inside get key reply")
+
+  response = Buffer.from(response, 'binary');
+  console.log(response);
+  console.log(response.length);
+
+  console.log("inside getKeyReply" + String(response));
+  
+  generateAndDisplayShamirKeys(response);
+});
+
+ipc.on('decryptReply',function(event, response){
+  console.log('response: ' + response);
+  console.log('SSN: ' + response['SSN']);
+  console.log('p pin: ' + response['Phone Pin']);
+  updateAndShowDecryptedShamirModal(response);
+})
+
 ipc.once('actionReply', function(event, response){
         printFiles(response);
 });
@@ -289,20 +327,10 @@ function createShamirShares(key) {
 }
 
 function validatePasswordAndGenerateShamirKeys() {
-  const enteredPassword = document.getElementById("shamirPassword").value;
-  // Replace the following line with the code to check if the entered password is valid
-  const isValidPassword = enteredPassword === "myPassword";
-
-  if (!isValidPassword) {
-    alert("Invalid password!");
-    return;
-  }
-
-  // Close the password prompt modal
-  //closePasswordModal();
+  closePasswordModal();
 
   // Generate and display Shamir keys
- // generateAndDisplayShamirKeys();
+  getKeyForShamir();
 
 }
 
@@ -314,17 +342,36 @@ function closeShamirKeysModal() {
   document.getElementById("shamirKeysModal").style.display = "none";
 }
 
+function showShamirDecryptModal() {
+  document.getElementById("decryptedShamirModal").style.display = "block";
+}
 
-function generateAndDisplayShamirKeys() {
-  // >>> ???
-  const encryptionKey = "---";
-  const hexKey = secrets.str2hex(encryptionKey);
+function closeShamirDecryptModal() {
+  document.getElementById("decryptedShamirModal").style.display = "none";
+  document.getElementById("label1").textContent = "";
+  document.getElementById("label2").textContent = "";
+  document.getElementById("label3").textContent = "";
+  document.getElementById("label4").textContent = "";
+  document.getElementById("label5").textContent = "";
 
+}
+
+function getKeyForShamir(){
+  console.log("inside getkeyforshamir");
+  ipc.send('getKey', this.userValidPwd);
+}
+
+
+function generateAndDisplayShamirKeys(encryptionKey) {
+  console.log("generateAndDisplayShamirKeys "+this.encryptionKey);
+  console.log("buffer "+ encryptionKey);
+
+  const hexKey = encryptionKey.toString('hex');
   const shamirShares = secrets.share(hexKey, 3, 2);
   document.getElementById("shamirKeyDisplay1").innerText = shamirShares[0];
   document.getElementById("shamirKeyDisplay2").innerText = shamirShares[1];
   document.getElementById("shamirKeyDisplay3").innerText = shamirShares[2];
-
+  
   showShamirKeysModal();
 }
 
@@ -341,16 +388,38 @@ function decryptDataUsingShamirKeys() {
     return;
   }
 
-  const combinedKey = secrets.combine(keysEntered);
-  const decryptedKey = secrets.hex2str(combinedKey);
+  try{
+    console.log(keysEntered);
+    const combinedKey = secrets.combine(keysEntered);
+    console.log(combinedKey);
+    decryptedHexKey = Buffer.from(combinedKey, 'hex');
+    console.log(decryptedHexKey);
+    decryptedBinaryKey = Buffer.from(decryptedHexKey, 'binary');
+    if(decryptedBinaryKey.length != 32){
+      throw new Error("Invalid Shamir keys")
+    }
+    console.log("dec hex " + decryptedBinaryKey.toString('hex'));
+    console.log("decrypt: " + decryptedBinaryKey + " " + decryptedBinaryKey.length);
+    ipc.send('decrypt', decryptedBinaryKey);
+    closeShamirKeysInputModal();
+    showShamirDecryptModal();  
+  }
+  catch(e){
+    alert("Shamir Key Decryption Error: " + e);
+  }
+}
 
-  // Use the decryptedKey to decrypt the data
-  // ...
+function updateAndShowDecryptedShamirModal(decryptedData) {
+  console.log('SSN: ' + decryptedData['SSN']);
+  document.getElementById("label1").textContent = decryptedData['SSN'] || "";
+  document.getElementById("label2").textContent = decryptedData['Account Number'] || "";
+  document.getElementById("label3").textContent = decryptedData['Bank Password'] || "";
+  document.getElementById("label4").textContent = decryptedData['Phone Pin'] || "";
+  document.getElementById("label5").textContent = decryptedData['Other'] || "";
 
-  // Display decrypted data in a prompt or another modal
-  // ...
-
-
+  // Show the modal
+  const modal = document.getElementById("decryptedShamirModal");
+  modal.style.display = "block";
 }
 
 function openShamirKeysInputModal() {
