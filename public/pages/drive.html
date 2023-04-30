@@ -59,7 +59,7 @@
             <div class="row">
                 <div class="col-md">
                     <!-- <button type="button" class="btn btn-primary" onclick="createProperties()">Create Properties File</button> -->
-                    <button type="button" class="btn btn-primary" onclick="">Change Password</button>
+                    <button type="button" class="btn btn-primary" onclick="showChangePasswordModal()">Change Password</button>
                     <button class="btn btn-primary" onclick="openModal('passwordModal')">Enter Data</button>
                     <button type="button" class="btn btn-primary" onclick="showPasswordModal()">Share</button>
                     <button type="button" class="btn btn-primary" onclick="openShamirKeysInputModal()">Decrypt</button>
@@ -103,6 +103,26 @@
                 <button class="btn btn-primary" onclick="handleTextFieldModalClose()">OK</button>
               </div>
           </div>
+        </div>
+
+        <div id="changePasswordModal" class="modal">
+            <div class="modal-content-pass">
+              <span class="close" onclick="closeChangePasswordModal()">&times;</span>
+              <p>Enter password:</p>
+              <input type="password" id="changePassword">
+              <button class="btn btn-primary" onclick="checkChangePassword('ChangePassword')">OK</button>
+              <label id="lblChangePwd" style="color:red;display: none;">Incorrect Password</label>
+            </div>
+        </div>
+
+        <div id="newPasswordModal" class="modal">
+            <div class="modal-content-pass">
+              <span class="close" onclick="closeNewPasswordModal()">&times;</span>
+              <p>Enter new password:</p>
+              <input type="password" id="newPassword">
+              <button class="btn btn-primary" id="btnNewPwdOk" onclick="setNewPassword('SetPassword')">OK</button>
+              <p id="successMessage" style="display: none;">Password updated successfully!</p>
+            </div>
         </div>
 
         <div id="shamirPasswordModal" class="modal">

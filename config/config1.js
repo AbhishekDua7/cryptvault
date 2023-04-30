@@ -515,7 +515,7 @@ class Config1 {
      }
      var oldData = null;
      if (this.checkFileSync(dataFilePath)) {
-        oldData = this.decryptFileDataAndRead(dataFilePath, oldPwd);
+        oldData = this.decryptFileDataAndRead(acceptableTagList, oldPwd);
         console.log('Reading old data' + Object.keys(oldData));
      }
     userPwd = Buffer.from(userPwd);
@@ -911,6 +911,20 @@ class Config1 {
     const ans = this.verifyPassword(passwordData[0]);
     console.log('Sending ans='+ans);
     callback([ans, passwordData[1]]);
+  }
+
+  verifySetPasswordEvent(data,callback, eventVal) {
+    console.log('verifying set password event')
+    if (!data[0] && !data[1]) {
+      callback(false, data[2]);
+      return;
+    }
+    console.log('oldpwd: ' + data[0])
+    console.log('userpwd: ' + data[1])
+    console.log('tag: ' + data[2])
+    const ans = this.handleUserPasswordCreation(data[0],data[1]);
+    //console.log('Sending ans =' + ans);
+    callback([ans, data[2]]);
   }
 
   decryptedDataForKeysEvent(data,callback,eventVal) {

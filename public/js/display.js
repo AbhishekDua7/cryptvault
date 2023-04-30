@@ -150,6 +150,24 @@ function closeModal(modalId) {
   
 }
 
+function checkChangePassword(tag) {
+  var password = document.getElementById("changePassword").value;
+  console.log('Sending ' + password);
+  
+  ipc.send('VerifyPassword', [password, tag]);
+}
+
+function setNewPassword(tag){
+  var oldpwd = document.getElementById("changePassword").value;
+  console.log('old password' + oldpwd);
+  var userpwd = document.getElementById("newPassword").value;
+  //console.log('new pwd' + userpwd);
+  console.log('Sending new password: ' + userpwd);
+  ipc.send('GenerateNewPassword', [oldpwd, userpwd, tag]);
+}
+
+
+
 function handleTextFieldModalClose() {
   let k = [];
   let v = [];
@@ -212,6 +230,11 @@ function checkPasswordValue(pass, tag) {
     else if(tag == "shamirKey") {
       document.getElementById("errorShamirPwdLabel").style.display = "block";
     }
+
+    else if (tag == "ChangePassword") {
+      var errorLabel = document.getElementById("lblChangePwd");
+      errorLabel.style.display = "block";
+    }
    
     this.userValidPwd = '';
   }
@@ -221,6 +244,12 @@ function afterSuccessfulPwdVerification(tag) {
   if (tag == "DataEntryFlow1") {
     loadcheckboxModal();
   }
+
+  else if (tag == "ChangePassword"){
+    closeChangePasswordModal();
+    showNewPasswordModal();
+  }
+
   else if (tag == "shamirKey"){
     console.log("yayyy");
     validatePasswordAndGenerateShamirKeys();
@@ -272,6 +301,18 @@ function getInfo(info){
 
 ipc.on('VerifyPasswordReply', function(event, response){
     checkPasswordValue(response[0], response[1]);
+});
+
+ipc.on('GenerateNewPwdReply',function(event, response){
+  
+  document.getElementById("newPassword").disabled = true;
+  document.getElementById("btnNewPwdOk").disabled =true; 
+  if (response[0] == true) {
+    document.getElementById("successMessage").style.display = "block";
+  } else {
+    document.getElementById("successMessage").value= "Error";
+    document.getElementById("successMessage").style.display = "block";
+  }
 });
 
 ipc.on('getKeyReply', function(event, response){
@@ -332,6 +373,22 @@ function validatePasswordAndGenerateShamirKeys() {
   // Generate and display Shamir keys
   getKeyForShamir();
 
+}
+
+function showChangePasswordModal() {
+  document.getElementById("changePasswordModal").style.display = "block";
+}
+
+function closeChangePasswordModal() {
+  document.getElementById("changePasswordModal").style.display = "none";
+}
+
+function showNewPasswordModal() {
+  document.getElementById("newPasswordModal").style.display = "block";
+}
+
+function closeNewPasswordModal() {
+  document.getElementById("newPasswordModal").style.display = "none";
 }
 
 function showShamirKeysModal() {

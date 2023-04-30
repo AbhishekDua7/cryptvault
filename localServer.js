@@ -122,6 +122,22 @@ ipc.on('driveAction', (event, data) => {
         console.log('Unidentified Action')
 });
 
+ipc.on('GenerateNewPassword', (event, data) => {
+    console.log('Received = '+ data);
+    function sendData(data3) {
+
+        console.log('GenerateNewPwdReply');
+        // console.log('oldpwd: ' + data[0])
+        // console.log('userpwd: ' + data[1])
+        // console.log('tag: ' + data[2])
+
+        event.sender.send('GenerateNewPwdReply', data3);
+    }
+    //console.log(data);
+    config.verifySetPasswordEvent(data,sendData,event);
+    //config.handleUserPasswordCreation(data[0], data[1])
+})
+
 module.exports.launchServer = launchServer;
 
 
