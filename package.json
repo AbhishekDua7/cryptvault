@@ -8,14 +8,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Ali-Sbeiti/Application-Security-Project.git"
+    "url": "git+https://github.com/AbhishekDua7/cryptvault.git"
   },
   "author": "",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/Ali-Sbeiti/Application-Security-Project/issues"
-  },
-  "homepage": "https://github.com/Ali-Sbeiti/Application-Security-Project#readme",
+  "homepage": "https://github.com/AbhishekDua7/cryptvault/blob/main/README.md",
   "devDependencies": {
     "electron": "^24.1.2"
   },
