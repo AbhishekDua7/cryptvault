@@ -99,42 +99,18 @@ class Config1 {
     });
   }
 
+  // utility function not to be used everytime
    uploadprivatesaltandiv() {
     let iv = this.getIVFromPrivateStore();
     this.uploadFileToCloud(ivkeyFilePath,ivkeyFileName, iv,true);
     this.uploadFileToCloud(saltkeyFilePath,saltkeyFileName,iv,true);
   }
-
-  // checkForPasswordCreation() {
-  //   console.log('Entering pwd exist check');
-  //   var self = this;
-  //   fs.stat(sampleDataFilePath, function(err, stats){
-  //       if (err) {
-  //           if (err.code == 'ENOENT') {
-  //               isPasswordCreated = false;
-  //           } else {
-  //               console.log(err)
-  //               console.log('fatal err in sample file')
-  //               throw err
-  //           }
-  //       } else {
-  //           isPasswordCreated = true;
-  //       }
-  //   })
-  // }
-
-  emptyFolderSync() {
-    const files = fs.readdirSync('./Documents/');
-    for (const file of files) {
-      const filePath = `${folderPath}/${file}`;
-      fs.unlinkSync(filePath);
-    }
-  }
+ 
 
   createSampleFile(key, iv){
-    console.log('Ciphering == '+ key.length);
+ //   console.log('Ciphering == '+ key.length);
     let cipherData = Buffer.from(this.encryptData(sampleText, key, iv, 'binary'), 'binary');
-    console.log('Encrypter SAMPLE DATA ========== ' + cipherData);
+   // console.log('Encrypter SAMPLE DATA ========== ' + cipherData);
     this.createOrUpdateFile(sampleDataFilePath, sampleFileName, iv, cipherData, true);
   }
 
@@ -142,7 +118,7 @@ class Config1 {
     if (this.checkFileSync(sampleDataFilePath)) {
       let cipherData = fs.readFileSync(sampleDataFilePath);
       let decipherData = this.decryptData(cipherData, key, iv, 'binary');
-      console.log('Deciphered = ' + decipherData);
+   //   console.log('Deciphered = ' + decipherData);
       return (decipherData == sampleText)
     } 
     else 
@@ -162,8 +138,8 @@ class Config1 {
     if (fileName==dataFileName && this.checkFileSync(lenFilePath) && this.checkFileSync(dataFilePath)) {
       var datalen = fs.readFileSync(dataFilePath).length+'';
       var l = fs.readFileSync(lenFilePath);
-      console.log('SavedLen='+ l);
-      console.log('DataLen='+ datalen);
+     // console.log('SavedLen='+ l);
+    //  console.log('DataLen='+ datalen);
       if (l == datalen) {
         userFileModified = false;
       } else {
@@ -179,7 +155,7 @@ class Config1 {
   // assumes the files exists
   uploadFileToCloud(filePath, fileName, iv, isPrivate) {
     let self = this;
-    console.log('Data in filepath -' + fs.readFileSync(filePath));
+    //console.log('Data in filepath -' + fs.readFileSync(filePath));
     let dataStream = fs.createReadStream(filePath);
     const drive = google.drive({version: 'v3', auth: this.auth});
     var fileId = this.getFileId(fileName, isPrivate);
@@ -189,7 +165,7 @@ class Config1 {
     };
     var media = {mimeType: 'application/octet-stream', body: dataStream};
     if (fileId != '') {
-        console.log('found file id for '+ fileName + ' = ' +fileId);
+       // console.log('found file id for '+ fileName + ' = ' +fileId);
         drive.files.update(
             {fileId: fileId, resource: fileMetadata, media: media, fields: 'id,appProperties,name, modifiedTime, modifiedByMeTime'},(err, file) => {
               if (err) {
@@ -197,8 +173,8 @@ class Config1 {
                 return;
               }
               self.saveFileLen(fileName);
-              console.log(`File modified time: ${file.modifiedTime}`);
-              console.log(`File modified by me time: ${file.modifiedByMeTime}`);
+           //   console.log(`File modified time: ${file.modifiedTime}`);
+           //   console.log(`File modified by me time: ${file.modifiedByMeTime}`);
               self.downloadfile(drive,fileName,isPrivate, fileId); 
             })
             
@@ -222,8 +198,8 @@ class Config1 {
                 self.saveFileLen(fileName);
                 console.log(
                     'Uploaded file \"' + fileName + '\", File Id: ', file.data.id);
-                console.log(`File modified time: ${file.modifiedTime}`);
-                console.log(`File modified by me time: ${file.modifiedByMeTime}`);    
+               // console.log(`File modified time: ${file.modifiedTime}`);
+               // console.log(`File modified by me time: ${file.modifiedByMeTime}`);    
                 self.downloadfile(drive,fileName,isPrivate, file.data.id);    
               }
         });
@@ -251,7 +227,7 @@ class Config1 {
 
   // this function just encrypts data for given key and iv
   encryptData(data, key, iv, inputFormat) {
-    console.log('Key LengthE='+key.length);
+    //console.log('Key LengthE='+key.length);
     let cipher = crypto.createCipheriv('aes-256-gcm', key, iv)
     let ciphertext = cipher.update(data, inputFormat, 'binary')
     return ciphertext;
@@ -259,7 +235,7 @@ class Config1 {
 
   // function to generate key using salt and user password as provided by prof.
   generateKeyUsingSalt(salt, pwd) {
-    console.log("Entering Key generation\ncreds=" + pwd + "\n salt = " + salt);
+  //  console.log("Entering Key generation\ncreds=" + pwd + "\n salt = " + salt);
     const keyLength = 32; // 256-bit key for AES-256
     var hash = crypto.createHash('sha256');
     let xi = Buffer.alloc(0); // initialize x0 to a zero-filled buffer
@@ -273,13 +249,13 @@ class Config1 {
     }
     const K = xi.subarray(0,keyLength); // the final value of xi is the first AES password
     //const K2 = crypto.randomBytes(keyLength); // generate a random key for the second password
-    console.log('Returned key = '+ K);
+   // console.log('Returned key = '+ K);
     return K;
   }
 
   // this function just decypts data for given key and iv
   decryptData(data, key, iv, outputFormat) {
-    console.log('Key LengthD='+key.length);
+    //console.log('Key LengthD='+key.length);
     let decipher = crypto.createDecipheriv('aes-256-gcm', key, iv);
     let cleartext = decipher.update(data, 'binary', outputFormat);
     return cleartext;
@@ -305,27 +281,10 @@ class Config1 {
     
   }
 
-  decryptAndReadPropertiesFile(filePath, key) {
-    console.log("key inside config.decryptAndReadPropertiesFile "+ Buffer.from(key, 'binary'));
-    if (this.checkFileSync(filePath)) {
-      try {
-        const encryptedData = fs.readFileSync(filePath);
-        const iv =this.getIVFromPrivateStore();
-        const propData = this.decryptData(encryptedData, key, iv, 'binary');
-        console.log('Decrypted clear text ' + propData);
-        return propData;
-        } catch(error) {
-          console.log('Unable to read ' + filePath + ' ' + error);
-        }
-    } else {
-      console.log('Unable to find ' + filePath);
-    }
-  }
-
-  
+ 
 
 // code to encrypt and decrypt data files.---------------------------------
-
+// utility function not to be used everytime
   generateAndUploadSaltForPrivateStore() {
     let self = this;
     if (this.checkFileSync(saltkeyFilePath)) {
@@ -333,8 +292,8 @@ class Config1 {
         return;
     } else {
         let salt = Buffer.from(crypto.randomBytes(32), 'binary');
-        console.log('Writing private salt = ' + salt);
-        console.log('Writing private salt of length= ' + salt.length);
+      //  console.log('Writing private salt = ' + salt);
+       // console.log('Writing private salt of length= ' + salt.length);
         let iv = crypto.randomBytes(16);
         this.createOrUpdateFile(saltkeyFilePath, saltkeyFileName,iv, salt, true);
         this.createOrUpdateFile(ivkeyFilePath, ivkeyFileName, iv, iv, true);
@@ -346,7 +305,7 @@ class Config1 {
    // this.generateAndUploadSaltForPrivateStore();
     try {
       let privateSalt = fs.readFileSync(saltkeyFilePath);
-      console.log('Reading private salt - ' + privateSalt);
+     // console.log('Reading private salt - ' + privateSalt);
       return privateSalt;
     } catch (error) {
       console.log(error);
@@ -360,7 +319,7 @@ class Config1 {
       //  let privateSalt = this.getSaltFromPrivateStore();
       //  let key2 = this.generateKeyUsingSalt(privateSalt, userPwd);
        let publicSalt = Buffer.from(fs.readFileSync(datakeyFilePath),'binary') //this.decryptAndReadPropertiesFile(datakeyFilePath, key2)
-       console.log(' public salt = ' + publicSalt);
+      // console.log(' public salt = ' + publicSalt);
        return publicSalt;
      } catch (error) {
        console.log(error);
@@ -371,7 +330,7 @@ class Config1 {
   getIVFromPrivateStore() {
      try {
        let iv = Buffer.from(fs.readFileSync(ivkeyFilePath),'binary');
-       console.log('Reading iv - ' + iv);
+      // console.log('Reading iv - ' + iv);
        return iv;
      } catch (error) {
        console.log(error);
@@ -394,6 +353,7 @@ class Config1 {
   }
 
 
+  // function to encrypt given data using key generated from publicly stored salt
   encryptGivenDataUsingPublicDataSalt(userdata, userPwd) {
     let userPass = Buffer.from(userPwd, 'binary');
     let key = this.getKeyFromPublicSalt(userPass);
@@ -402,6 +362,7 @@ class Config1 {
     return cipheredData;
   }
 
+  // function to encrypt given data using key generated from privately stored salt
   encryptGivenDataUsingPrivateSalt(userdata, userPwd) {
     let userPass = Buffer.from(userPwd, 'binary');
     let key = this.getKeyFromPrivateSalt(userPass);
@@ -410,15 +371,17 @@ class Config1 {
     return cipheredData;
   }
 
+  // function to decrypt given data using the public stored salt and password
   decryptGivenDataUsingPublicDataSalt(encryptedData, userPwd) {
     let userPass = Buffer.from(userPwd, 'binary');
     let key = this.getKeyFromPublicSalt(userPass);
     let iv = this.getIVFromPrivateStore();
     let clearData = this.decryptData(encryptedData,key,iv,'binary');
-    console.log('Decrypted Public Userdata='+ clearData);
+  //  console.log('Decrypted Public Userdata='+ clearData);
     return clearData;
   }
 
+  // function to decrypt given data using the key
   decryptGivenDataUsingPublicKey(encryptedData, key) {
    // let userPass = Buffer.from(userPwd, 'binary');
    // let key = this.getKeyFromPublicSalt(userPass);
@@ -428,16 +391,17 @@ class Config1 {
     return clearData;
   }
 
+  // function to decrypt given data using the privately stored salt and password
   decryptGivenDataUsingPrivateSalt(encryptedData, userPwd) {
     let userPass = Buffer.from(userPwd, 'binary');
     let key = this.getKeyFromPrivateSalt(userPass);
     let iv = this.getIVFromPrivateStore();
     let clearData = this.decryptData(encryptedData,key,iv,'binary');
-    console.log('Decrypted Private Userdata='+ clearData);
+    //console.log('Decrypted Private Userdata='+ clearData);
     return clearData;
   }
 
-  //here keys are tags and values are clear data
+  //here keys are tags and values are clear data, are encrypted given password
   encryptAndStoreUserData(keys,values, userPwd) {
     let iv = this.getIVFromPrivateStore();
     let propData= {};//this.encryptGivenDataUsingPublicDataSalt(values[0],userPwd);
@@ -447,13 +411,14 @@ class Config1 {
       propData[cipheredKey.toString('base64')]=cipheredData.toString('base64');
      // propData+=keys[i]+'='+cipheredData+'\n';
     }
-    console.log('prop user data = '+ JSON.stringify(propData)); 
+   // console.log('prop user data = '+ JSON.stringify(propData)); 
     let binprop = Buffer.from(JSON.stringify(propData),'utf8'); 
-    console.log('prop user data = '+ binprop); 
+    //console.log('prop user data = '+ binprop); 
     this.createOrUpdateFile(dataFilePath,dataFileName,iv,binprop, false);
     return true;
   }
 
+  // decrypt data when given user password
   decryptFileDataAndRead(keys,userPwd) {
    let encData = fs.readFileSync(dataFilePath);
    let propData = JSON.parse(encData.toString('utf8'));
@@ -470,6 +435,7 @@ class Config1 {
    return op;
   }
 
+  // used for shamir, when key is passed
   decryptFileDataUsingKey(key) {
     if (!this.checkFileSync(dataFilePath)) {return {"error":''};}
     let encData = fs.readFileSync(dataFilePath);
@@ -477,10 +443,6 @@ class Config1 {
     let op = {};
     let userdata = Object.values(propData);
     for(var i=0;i<acceptableTagList.length;i++) {
-     //prop[keys[i]]
-       //var encKey = Buffer.from(this.encryptGivenDataUsingPrivateSalt(keys[i], userPwd),'binary');
-      // var encKeyVal = encKey.toString('base64');
-      //  let decKey = this.decryptGivenDataUsingPrivateSalt(Buffer.from(encKey, 'base64'),userPwd);
        var encDataVal = Buffer.from(userdata[i],'base64');
        let decVal = this.decryptGivenDataUsingPublicKey(encDataVal,key);
        op[acceptableTagList[i]]=decVal;
@@ -498,10 +460,6 @@ class Config1 {
       let salt = Buffer.from(crypto.randomBytes(32),'binary');
       console.log('Writing public salt');
        let iv = this.getIVFromPrivateStore();
-      // let key2 = this.getKeyFromPrivateSalt(userPwd);
-      // console.log('\n\nPlain content= '+ salt);
-      // let encryptedContent= this.encryptData(salt,key2, iv, 'binary');
-     // console.log('encrypted content=' +encryptedContent);
      //encryptedContent
       this.createOrUpdateFile(datakeyFilePath,datakeyfileName,iv,salt,false);
     }
@@ -545,24 +503,37 @@ class Config1 {
     publicfolder = [];
     this.listPrivateFiles();
     isPasswordCreated = this.checkFileSync(sampleDataFilePath);
-    console.log('Password created = ' + isPasswordCreated);
-    //console.log('Password verified='+ this.verifyPassword(userPassword));
-   // this.handleUserPasswordCreation(userPassword);
     if (isPasswordCreated == true) {
-     // console.log('Listing public files');
+      console.log('Listing public files');
       this.listPublicFiles(callback);
-      // if (!this.checkFileSync(datakeyFilePath)) {
-      //      this.storePublicSalt(userPassword);
-      // }
-      // this.tryReadProp();
-    // this.encryptAndStoreUserData(['Name'],['Abhishek'], userPassword);
-    //  this.decryptFileDataAndRead(['Name'],userPassword);
     } else {
-      
-     // this.handleUserPasswordCreation(userPassword);
+      console.log('Please ========== RELOAD ========= ');
     }
   }
 
+  // creates folder on creation
+  resetfolders() {
+    let folderPath1='./PublicDocuments/';
+    let folderPath2= './Documents/';
+    if (this.checkFileSync('.public_timestamp')){
+      fs.unlinkSync('.public_timestamp');
+    }
+    if (fs.existsSync(folderPath1)) {
+      // delete the folder and its contents
+      fs.rmdirSync(folderPath1, { recursive: true });
+    }
+    if (this.checkFileSync('.private_timestamp')) {
+      fs.unlinkSync('.private_timestamp')
+    }
+    if (!fs.existsSync(folderPath2)) {
+      // create folder and its contents
+      fs.mkdirSync(folderPath2);
+    }
+    fs.mkdirSync(folderPath1);
+   
+  }
+
+  // function to verify if given password is correct
   verifyPassword(userPwd) {
     let userPass = Buffer.from(userPwd,'binary');
     let iv = this.getIVFromPrivateStore();
@@ -570,42 +541,7 @@ class Config1 {
     return this.decryptAndValidateSampleFile(key2, iv);
   }
 
-  tryReadProp() {
-   
-    let iv = this.getIVFromPrivateStore();
-    console.log('public iv='+ iv);
-    if (iv != undefined) {
-    let key2= this.getKeyFromPrivateSalt(Buffer.from(userPassword));
-    console.log('\n\n-------Generated Key2----------\n\n' + key2 + '\n------------------------------\n');
-    console.log('verify password ='+this.decryptAndValidateSampleFile(key2));
-    console.log('public key2='+ key2);
-    let propData = this.decryptAndReadPropertiesFile(datakeyFilePath,key2);
-    console.log('Decrypted data --');
-    console.log(propData);
-    } else {
-      console.log('no iv found');
-    }
-    // let key2= this.getKeyFromPrivateSalt(Buffer.from(userPassword));
-    // let iv = this.getIVFromPrivateStore();
-    // let cipherText = this.encryptData('hello!!', key2,iv, 'binary');
-    // let clearText = this.decryptData(cipherText,key2,iv,'binary');
-    // console.log('Clear text value is '+ clearText);
-    
-  }
-
-  getIVValue(providedFolder, keyFileName) {
-    if (ivMap.has(keyFileName)) 
-      return ivMap.get(keyFileName);
-    else {
-      for(var i =0;i<providedFolder.length;i++) {
-        if (providedFolder[i][0] == keyFileName) {
-          return providedFolder[i].data.appProperties.IV;
-        }
-      }
-    }  
-
-  }
-
+  // downloads private stored files
  listPrivateFiles() {
     console.log('Entering list private');
     const drive = google.drive({version: 'v3', auth: this.auth});
@@ -627,15 +563,15 @@ class Config1 {
               console.log(`${file.name} : (${file.id})`);
               folder.push([file.name, file.id]);
             });
+            
           } else {
             console.log('No Files in private :(');
           }
-         this.handleCloudFiles(drive,folder);
-         
-        // this.handleDocuments();
+         this.handleCloudFiles(drive,folder);       
     });
   }
 
+  // change the call to this function in listFile to view private stored files
   listPrivateFiles2(callback) {
     console.log('Entering list private');
     const drive = google.drive({version: 'v3', auth: this.auth});
@@ -758,10 +694,6 @@ class Config1 {
         })
       }
       console.log('Done private downloads');
-     // self.generateAndUploadSaltForPrivateStore();
-      // if(!isPrivate) {
-      //   self.tryReadProp();
-      // }
     })
   }
 
@@ -803,6 +735,10 @@ class Config1 {
                               'Cloud copy of ' + change.file.name +
                               ' is newer - downloading')
                           self.downloadfile(drive,change.file.name,isPrivate, change.fileId)
+                          //if (isPrivate == true) {
+                            
+                         // }
+                          
                         }
                       }
                   })
@@ -817,42 +753,7 @@ class Config1 {
     if (isPrivate == true) {
         downloadPath = './Documents/';
     }
-    // drive.files
-    //     .get({
-    //       fileId: fileid,
-    //       fields:
-    //           'name, appProperties, createdTime, modifiedTime, modifiedByMeTime'
-    //     })
-    //     .then(function(file) {
-    //       justDownloaded.push(file.data.name)
-    //       console.log('Downloaded: ' + file.data.name);
-    //       let iv = Buffer.from(file.data.appProperties.IV, 'base64');
-    //       console.log('Added iv ' + iv +' for ' + file.data.name)
-    //       let timestamp = file.data.modifiedTime
-    //       drive.files.get({fileId: fileid, alt: 'media'})
-    //           .then(function(filewithdata) {
-    //             console.log('ENCRYPTED FILE CONTENTS: ')
-    //             console.dir(filewithdata.data)
-    //             fs.writeFile(
-    //                   downloadPath + file.data.name, filewithdata.data,
-    //                   {encoding: 'binary'}, function(err) {
-    //                     if (err) {
-    //                       console.log('error writing to file ')
-    //                       console.log(downloadPath + file.data.name)
-    //                       throw err
-    //                     } else {
-    //                       console.log('WRITTEN TO FILE')
-    //                     }
-    //                   })
-    //                   //self.tryReadProp();
-    //             })
-    //           .catch(function(err) {
-    //             console.log('Error during second download', err);
-    //           })
-    //     })
-    //     .catch(function(err) {
-    //       console.log('Error during download', err);
-    //     })
+  
     const destFileStream = fs.createWriteStream((downloadPath+fileName));
     drive.files.get(
       { fileId: fileid, alt: 'media',fields:
@@ -863,20 +764,11 @@ class Config1 {
           console.error(`Error downloading file: ${err}`);
           return;
         }
-        let modifiedByMeTs = res.modifiedByMeTime;
-        let modifiedTs = res.modifiedTime;
-        console.log("Ts for filename="+fileName);
-        console.log('Modifiedbyme='+ modifiedByMeTs);
-        console.log('ModifiedTime=' + modifiedTs);
-      
-        // if (dataFileName == fileName) {
-        //   if (modifiedByMeTs == modifiedTs) {
-        //     userFileModified = false;
-        //   } else {
-        //     userFileModified = true;
-        //   }
-          
-        // }
+       // let modifiedByMeTs = res.modifiedByMeTime;
+       // let modifiedTs = res.modifiedTime;
+       // console.log("Ts for filename="+fileName);
+        //console.log('Modifiedbyme='+ modifiedByMeTs);
+       // console.log('ModifiedTime=' + modifiedTs);
 
         res.data.pipe(destFileStream);
         destFileStream.on('finish', () => {
@@ -906,6 +798,8 @@ class Config1 {
     console.log('reloaded')
   }
 
+
+  // Button click events
   verifyPasswordEvent(passwordData,callback, eventVal) {
     console.log('Password from localserver=' + passwordData[0]);
     const ans = this.verifyPassword(passwordData[0]);
@@ -919,17 +813,17 @@ class Config1 {
       callback(false, data[2]);
       return;
     }
-    console.log('oldpwd: ' + data[0])
-    console.log('userpwd: ' + data[1])
-    console.log('tag: ' + data[2])
+  //  console.log('oldpwd: ' + data[0])
+  //  console.log('userpwd: ' + data[1])
+  //  console.log('tag: ' + data[2])
     const ans = this.handleUserPasswordCreation(data[0],data[1]);
-    //console.log('Sending ans =' + ans);
+    console.log('Sending ans =' + ans);
     callback([ans, data[2]]);
   }
 
   decryptedDataForKeysEvent(data,callback,eventVal) {
-    console.log('Password from localserver=' + data[1]);
-    console.log('Keys from localserver=' + data[0]);
+   // console.log('Password from localserver=' + data[1]);
+   // console.log('Keys from localserver=' + data[0]);
     if (!this.checkFileSync(dataFilePath)) {
       var prop = {};
       for(var i=0;i<data[0].length;i++) {
@@ -940,7 +834,7 @@ class Config1 {
       //this.encryptAndStoreUserData(acceptableTagList, values,data[1]);
     } else {
       this.FileLenMatch(dataFileName);
-      console.log('Decrypting data for modifying  isFIleModified=' + userFileModified);
+    //  console.log('Decrypting data for modifying  isFIleModified=' + userFileModified);
       if (userFileModified == true) {
         var prop = {
           "error":"Modified File"
@@ -957,9 +851,9 @@ class Config1 {
     if (data[2] == '') {
       return callback(false);
     }
-    console.log('Password from localserver=' + data[2]);
-    console.log('Values from localserver=' + data[1]);
-    console.log('Keys from localserver=' + data[0]);
+  //  console.log('Password from localserver=' + data[2]);
+  //  console.log('Values from localserver=' + data[1]);
+   // console.log('Keys from localserver=' + data[0]);
     let prop={};
     if (this.checkFileSync(dataFilePath)) {
        prop = this.decryptFileDataAndRead(acceptableTagList,data[2]);
@@ -973,22 +867,12 @@ class Config1 {
     }
     var k = Object.keys(prop);
     var v = Object.values(prop);
-    // if (!this.checkFileSync(dataFilePath)) {
-    //   let values = ['','','','',''];
-    //   this.encryptAndStoreUserData(acceptableTagList, values,data[1]);
-    // }
     const ans = this.encryptAndStoreUserData(k,v,data[2]);
     callback(ans);
   }
   
 
 }
-
-// ipcMain.handle('VerifyPassword', async (event, arg) => {
-//   console.log(`${arg} from main process`);
-//   return this.verifyPassword(arg);
-//   //return `${arg} from main process`;
-// });
 
 
 module.exports = new Config1();

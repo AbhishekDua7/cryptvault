@@ -152,17 +152,19 @@ function closeModal(modalId) {
 
 function checkChangePassword(tag) {
   var password = document.getElementById("changePassword").value;
-  console.log('Sending ' + password);
+  //console.log('Sending ' + password);
   
   ipc.send('VerifyPassword', [password, tag]);
 }
 
 function setNewPassword(tag){
   var oldpwd = document.getElementById("changePassword").value;
-  console.log('old password' + oldpwd);
+ // console.log('old password' + oldpwd);
+// document.getElementById("changePassword").value='';
   var userpwd = document.getElementById("newPassword").value;
+  document.getElementById("newPassword").value = '';
   //console.log('new pwd' + userpwd);
-  console.log('Sending new password: ' + userpwd);
+  //console.log('Sending new password: ' + userpwd);
   ipc.send('GenerateNewPassword', [oldpwd, userpwd, tag]);
 }
 
@@ -201,15 +203,16 @@ function handleTextFieldModalCloseResponse(resp) {
   userValidPwd = '';
   userDecryptedData = {};
   var password = document.getElementById("password").value;
-  console.log("inside checkPassword" + password);
-  console.log('Sending ' + password);
+  //console.log("inside checkPassword" + password);
+ // console.log('Sending ' + password);
   this.userValidPwd = password;
   ipc.send('VerifyPassword', [password, tag]);
 }
 
 function checkShamirPassword(tag) {
   var password = document.getElementById("spassword").value;
-  console.log('Sending' + password)
+  document.getElementById("spassword").value = '';
+ // console.log('Sending' + password)
   ipc.send('VerifyPassword', [password,tag]);
 }
 
@@ -251,7 +254,7 @@ function afterSuccessfulPwdVerification(tag) {
   }
 
   else if (tag == "shamirKey"){
-    console.log("yayyy");
+   // console.log("yayyy");
     validatePasswordAndGenerateShamirKeys();
   }
 }
@@ -264,14 +267,14 @@ function openTextFields() {
     checkboxData.set("tag4", document.getElementById("tag4").checked);
     checkboxData.set("tag5", document.getElementById("tag5").checked);
     var keys = Array.from(checkboxData.keys());
-    console.log('Existing keys='+keys[0] + 'len=' + keys.length);
+   // console.log('Existing keys='+keys[0] + 'len=' + keys.length);
     for(var i=0;i<keys.length;i++) {
       if (checkboxData.get(keys[i]) == true) {
         this.requestedKeys.push(this.tagMap[keys[i]]);
       }
     }
-    console.log(checkboxData);
-    console.log('\n '+ requestedKeys);
+   // console.log(checkboxData);
+   // console.log('\n '+ requestedKeys);
     ipc.send('GetUserDataForKeysEvent', [requestedKeys, userValidPwd]);
     
   }
@@ -288,7 +291,7 @@ function openTextFields() {
 });
 
 ipc.on('SaveUserDataForKeysReply', function(event, response){
-  console.log("Encrypted and saved="+ response);
+//  console.log("Encrypted and saved="+ response);
   handleTextFieldModalCloseResponse(response);
 });
 
@@ -316,21 +319,21 @@ ipc.on('GenerateNewPwdReply',function(event, response){
 });
 
 ipc.on('getKeyReply', function(event, response){
-  console.log("inside get key reply")
+  //console.log("inside get key reply")
 
   response = Buffer.from(response, 'binary');
-  console.log(response);
-  console.log(response.length);
+ // console.log(response);
+ // console.log(response.length);
 
-  console.log("inside getKeyReply" + String(response));
+ // console.log("inside getKeyReply" + String(response));
   
   generateAndDisplayShamirKeys(response);
 });
 
 ipc.on('decryptReply',function(event, response){
-  console.log('response: ' + response);
-  console.log('SSN: ' + response['SSN']);
-  console.log('p pin: ' + response['Phone Pin']);
+ // console.log('response: ' + response);
+ // console.log('SSN: ' + response['SSN']);
+ // console.log('p pin: ' + response['Phone Pin']);
   updateAndShowDecryptedShamirModal(response);
 })
 
@@ -414,14 +417,14 @@ function closeShamirDecryptModal() {
 }
 
 function getKeyForShamir(){
-  console.log("inside getkeyforshamir");
+ // console.log("inside getkeyforshamir");
   ipc.send('getKey', this.userValidPwd);
 }
 
 
 function generateAndDisplayShamirKeys(encryptionKey) {
-  console.log("generateAndDisplayShamirKeys "+this.encryptionKey);
-  console.log("buffer "+ encryptionKey);
+ // console.log("generateAndDisplayShamirKeys "+this.encryptionKey);
+//  console.log("buffer "+ encryptionKey);
 
   const hexKey = encryptionKey.toString('hex');
   const shamirShares = secrets.share(hexKey, 3, 2);
@@ -444,19 +447,21 @@ function decryptDataUsingShamirKeys() {
     alert("Please enter at least two keys!");
     return;
   }
-
+  document.getElementById("inputShamirKey1").value = '';
+  document.getElementById("inputShamirKey2").value = '';
+  document.getElementById("inputShamirKey3").value= '';
   try{
-    console.log(keysEntered);
+   // console.log(keysEntered);
     const combinedKey = secrets.combine(keysEntered);
-    console.log(combinedKey);
+  //  console.log(combinedKey);
     decryptedHexKey = Buffer.from(combinedKey, 'hex');
-    console.log(decryptedHexKey);
+  //  console.log(decryptedHexKey);
     decryptedBinaryKey = Buffer.from(decryptedHexKey, 'binary');
     if(decryptedBinaryKey.length != 32){
       throw new Error("Invalid Shamir keys")
     }
-    console.log("dec hex " + decryptedBinaryKey.toString('hex'));
-    console.log("decrypt: " + decryptedBinaryKey + " " + decryptedBinaryKey.length);
+  //  console.log("dec hex " + decryptedBinaryKey.toString('hex'));
+  //  console.log("decrypt: " + decryptedBinaryKey + " " + decryptedBinaryKey.length);
     ipc.send('decrypt', decryptedBinaryKey);
     closeShamirKeysInputModal();
     showShamirDecryptModal();  
@@ -467,7 +472,7 @@ function decryptDataUsingShamirKeys() {
 }
 
 function updateAndShowDecryptedShamirModal(decryptedData) {
-  console.log('SSN: ' + decryptedData['SSN']);
+ // console.log('SSN: ' + decryptedData['SSN']);
   document.getElementById("label1").textContent = decryptedData['SSN'] || "";
   document.getElementById("label2").textContent = decryptedData['Account Number'] || "";
   document.getElementById("label3").textContent = decryptedData['Bank Password'] || "";

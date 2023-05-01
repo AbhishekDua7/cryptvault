@@ -37,6 +37,7 @@ function launchServer() {
         config.generateToken(next);
     }, (req, res, next) => {
         //On Successful token generation, direct to drive page
+        config.resetfolders();
         res.redirect(config.paths.drive);
         next();
     });
@@ -70,7 +71,7 @@ ipc.on('VerifyPassword', (event, data) => {
       //  console.log('Run Good');
         event.sender.send('VerifyPasswordReply', data2);
     }
-   // config.uploadprivatesaltandiv();
+   // config.handleUserPasswordCreation('dbsec1', 'dbsec');
    //let dataToPrint = config.decryptFileDataUsingKey(config.getKeyFromPublicSalt(data[0]));
    // console.log('Key generated = '+ Object.keys(dataToPrint) +'\n'+ Object.values(dataToPrint));
     config.verifyPasswordEvent(data, sendData, event)
@@ -98,19 +99,19 @@ ipc.on('GetUserDataForKeysEvent', (event, data) => {
  })
 
  ipc.on('getKey', (event, data) => {
-    console.log("Inside get key");
+  //  console.log("Inside get key");
     console.log(data);
     key  = config.getKeyFromPublicSalt(data);
-    console.log("Original key = " + key)
-    console.log('length of key' + key.length);
+   // console.log("Original key = " + key)
+   // console.log('length of key' + key.length);
     event.sender.send('getKeyReply', key);
  })
 
 ipc.on('decrypt', (event, data) => {
-    console.log("data " + data + " " + data.length);
-    console.log(Buffer.from(data, 'binary'));
+   // console.log("data " + data + " " + data.length);
+  //  console.log(Buffer.from(data, 'binary'));
     decryptedData = config.decryptFileDataUsingKey(data);
-    console.log('decdata' +" SSN : "+ decryptedData['SSN'] + ", Acc No. : " + decryptedData['Account Number']);
+   // console.log('decdata' +" SSN : "+ decryptedData['SSN'] + ", Acc No. : " + decryptedData['Account Number']);
     event.sender.send('decryptReply', decryptedData);
 });
 
@@ -123,7 +124,7 @@ ipc.on('driveAction', (event, data) => {
 });
 
 ipc.on('GenerateNewPassword', (event, data) => {
-    console.log('Received = '+ data);
+  //  console.log('Received = '+ data);
     function sendData(data3) {
 
         console.log('GenerateNewPwdReply');
